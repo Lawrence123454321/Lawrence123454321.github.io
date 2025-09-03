@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hi</title>
+    </head>
+    <body>
+        <!--Tic Tac Toe Game-->
+        <style>
+            .container {
+                display: flex;
+                gap: 10px;
+            }
+            .border{
+                border-color:black;
+                border-width:5px;
+            }
+            .box {
+                height:150px;
+                width:150px;
+                background-color:#a9a9a9;
+            }
+            body {
+                margin-left:100px;
+                margin-top:100px;
+                background-color:#696969;
+            }
+            .boxs {
+                font-family: 'Courier New', Courier, monospace;
+                margin-left:70px;
+                margin-top:70px;
+            }
+            .box:hover{
+                background-color:#898989;
+                -webkit-transition: background-color 500ms linear;
+                -ms-transition: background-color 500ms linear;
+                transition: background-color 500ms linear;
+            }
+            .linear-text-gradient {
+                font-size: 36px;
+                background: linear-gradient(to top, rgb(175, 175, 175), #F9F9F9);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+        </style>
+        <div class="border">
+            <div class="container">
+                <div class="box" id="box1">
+                    <span class="boxs" id="boxs1"></span>
+                </div>
+                <div class="box" id="box2">
+                    <span class="boxs" id="boxs2"></span>
+                </div>
+                <div class="box" id="box3">
+                    <span class="boxs" id="boxs3"></span>
+                </div>
+            </div>
+            <div class="container">
+                <div class="box" id="box4">
+                    <span class="boxs" id="boxs4"></span>
+                </div>
+                <div class="box" id="box5">
+                    <span class="boxs" id="boxs5"></span>
+                </div>
+                <div class="box" id="box6">
+                    <span class="boxs" id="boxs6"></span>
+                </div>
+            </div>
+            <div class="container">
+                <div class="box" id="box7">
+                    <span class="boxs" id="boxs7"></span>
+                </div>
+                <div class="box" id="box8">
+                    <span class="boxs" id="boxs8"></span>
+                </div>
+                <div class="box" id="box9">
+                    <span class="boxs" id="boxs9"></span>
+                </div>
+            </div>
+        </div>
+        <p class="linear-text-gradient" id="step">This step turn: X</p>
+        <script src="Tic Tac Toe.js"></script>
+        <script src="navbar.js"></script>
+    </body>
+</html>

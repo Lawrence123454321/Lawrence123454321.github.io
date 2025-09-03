@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hi</title>
+        <style>
+            a {
+                color:darkslategray;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <h1><code>@keyframes</code> example</h1>
+            CSS Code: (CSSDemo.css)
+            <pre><code>
+                @keyframes whole {
+                    0% {top:100px; left:100px;  color: black;}
+                    25% {top:200px; left:100px; color: darkblue;}
+                    50% {top:200px; left:200px; color: darkslateblue;}
+                    75% {top:100px; left:200px; color: darkslategray;}
+                    100% {top:100px; left:100px;color: black;}
+                }
+                @keyframes move_right {
+                    0% {top:100px; left:100px; background-color: slategray;}
+                    25% {top:100px; left:300px; background-color: white;}
+                    50% {top:150px; left:200px; background-color: gray;}
+                    75% {top:100px; left:300px; background-color: lightslategray;}
+                    100% {top:100px; left:100px; background-color: slateblue;}
+                }
+                @keyframes move_right2 {
+                    0% {top:125px; left:100px; background-color: slategray;}
+                    25% {top:125px; left:300px; background-color: white;}
+                    50% {top:175px; left:200px; background-color: gray;}
+                    75% {top:125px; left:300px; background-color: lightslategray;}
+                    100% {top:125px; left:100px; background-color: slateblue;}
+                }
+                @keyframes move_right3 {
+                    0% {top:150px; left:100px; background-color: slategray;}
+                    25% {top:150px; left:300px; background-color: white;}
+                    50% {top:200px; left:200px; background-color: gray;}
+                    75% {top:150px; left:300px; background-color: lightslategray;}
+                    100% {top:150px; left:100px; background-color: slateblue;}
+                }
+                @keyframes move_right4 {
+                    0% {top:175px; left:100px; background-color: slategray;}
+                    25% {top:175px; left:300px; background-color: white;}
+                    50% {top:200px; left:200px; background-color: gray;}
+                    75% {top:175px; left:300px; background-color: lightslategray;}
+                    100% {top:175px; left:100px; background-color: slateblue;}
+                }
+                .mainContent {
+                    position:relative;
+                    animation: circular 4s infinite linear;
+                }
+                .move {
+                    width:300px;
+                    position: relative;
+                    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+                    font-size: 20px;
+                    animation: move_right 2s infinite;
+                }
+                .move2 {
+                    width:300px;
+                    position: relative;
+                    font-family: monospace;
+                    animation: move_right2 4s infinite;
+                }
+                .move3 {
+                    width:300px;
+                    position: relative;
+                    animation: move_right3 8s infinite;
+                }
+                .move4 {
+                    width:300px;
+                    position: relative;
+                    animation: move_right4 1s infinite;
+                }
+                @keyframes circular {
+                    0% {
+                        transform: rotate(0deg) 
+                            translateY(100px) rotate(0deg);
+                    }
+                
+                    100% {
+                        transform: rotate(360deg) 
+                            translateY(100px) rotate(-360deg);
+                    }
+                }
+            </code></pre>
+            <p>HTML Code: (CSSDemo.html)</p>
+            <pre><code>
+&lt!DOCTYPE html>
+&lthtml>
+    &lthead>
+        &lttitle>Animations Page&lt/title>
+        &ltlink rel="stylesheet" href="CSSDemo.css" />
+    &lt/head>
+    &ltbody>
+        &ltdiv class="mainContent">
+            &lth1>Creating CSS rules with classes and IDs&lt/h1>
+            &ltdiv class="move" id="move">
+                &ltspan>Different sizing increments:&lt/span>
+            &lt/div>
+            &ltdiv class="move2">
+                Using CSS, we can use the following absolue units:
+            &lt/div>
+            &ltdiv class="move3">
+                We can use relative length, such as cm, px, rem, em etc.
+            &lt/div>
+            &ltdiv class="move4">
+                We can also use typographical font properties such as &ltcode>font-style&lt/code>, &ltcode>font-width&lt/code>, &ltcode>font-height&lt/code>, etc.
+            &lt/div>
+        &lt/div>
+    &lt/body>
+&lt/html>
+            </code></pre>
+        </div>
+        <script src="navbar.js"></script>
+    </body>
+</html>

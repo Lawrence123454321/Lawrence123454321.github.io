@@ -1,0 +1,18 @@
+code {
+    color:brown;
+}
+.title {
+    font-size: x-large;
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+}
+.linka {
+    font-family: 'Courier New', Courier, monospace;
+    font-size:large;
+    width:100px;
+    height:150px;
+    background-color:cornflowerblue;
+    border: 4px double black;
+    text-align: center;
+    color:black;
+}

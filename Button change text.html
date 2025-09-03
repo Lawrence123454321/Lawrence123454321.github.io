@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hi</title>
+        <style>
+            .horiz {
+                display:flex;
+                gap: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="margin-top:100px; margin-left:100px">
+            <p id="hi">Hi</p>
+            <div class="horiz">
+                <button id="btn" onclick="onclick();">Click this</button>
+                <button style="color: darkblue" id="btn2">Show code</button>
+            </div>
+            <code id="code1">Click button to show code</code>
+            <br />
+            <code id="code2"></code>
+            <br />
+            <code id="code3"></code>
+            <br />
+            <code id="code4"></code>
+            <br />
+            <code id="code5"></code>
+            <br />
+            <code id="code6"></code>
+            <br />
+        </div>
+        <script src="navbar.js"></script>
+        <script>
+            let a=document.getElementById("hi");
+            let b=document.getElementById("btn");
+            let c=document.getElementById("btn2");
+            function onclick() {
+                // edit this
+                a.innerHTML+=" STOP";
+            }
+            function showcode() {
+                document.getElementById("code1").innerHTML="let a=document.getElementById(\"hi\");";
+                document.getElementById("code2").innerHTML="let b=document.getElementById(\"btn\");";
+                document.getElementById("code3").innerHTML="function onclick() {";
+                document.getElementById("code4").innerHTML="    a.innerHTML+=\" STOP\"";
+                document.getElementById("code5").innerHTML="}";
+                document.getElementById("code6").innerHTML="b.addEventListener(\"click\", onclick);";
+            }
+            b.addEventListener("click", onclick);
+            c.addEventListener("click", showcode);
+        </script>
+        <script src="navbar.js"></script>
+    </body>
+</html>

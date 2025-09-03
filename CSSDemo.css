@@ -1,0 +1,73 @@
+@keyframes whole {
+    0% {top:100px; left:100px;  color: black;}
+    25% {top:200px; left:100px; color: darkblue;}
+    50% {top:200px; left:200px; color: darkslateblue;}
+    75% {top:100px; left:200px; color: darkslategray;}
+    100% {top:100px; left:100px;color: black;}
+}
+@keyframes move_right {
+    0% {top:100px; left:100px; background-color: slategray;}
+    25% {top:100px; left:300px; background-color: white;}
+    50% {top:150px; left:200px; background-color: gray;}
+    75% {top:100px; left:300px; background-color: lightslategray;}
+    100% {top:100px; left:100px; background-color: slateblue;}
+}
+@keyframes move_right2 {
+    0% {top:125px; left:100px; background-color: slategray;}
+    25% {top:125px; left:300px; background-color: white;}
+    50% {top:175px; left:200px; background-color: gray;}
+    75% {top:125px; left:300px; background-color: lightslategray;}
+    100% {top:125px; left:100px; background-color: slateblue;}
+}
+@keyframes move_right3 {
+    0% {top:150px; left:100px; background-color: slategray;}
+    25% {top:150px; left:300px; background-color: white;}
+    50% {top:200px; left:200px; background-color: gray;}
+    75% {top:150px; left:300px; background-color: lightslategray;}
+    100% {top:150px; left:100px; background-color: slateblue;}
+}
+@keyframes move_right4 {
+    0% {top:175px; left:100px; background-color: slategray;}
+    25% {top:175px; left:300px; background-color: white;}
+    50% {top:200px; left:200px; background-color: gray;}
+    75% {top:175px; left:300px; background-color: lightslategray;}
+    100% {top:175px; left:100px; background-color: slateblue;}
+}
+.mainContent {
+    position:relative;
+    animation: circular 4s infinite linear;
+}
+.move {
+    width:300px;
+    position: relative;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 20px;
+    animation: move_right 2s infinite;
+}
+.move2 {
+    width:300px;
+    position: relative;
+    font-family: monospace;
+    animation: move_right2 4s infinite;
+}
+.move3 {
+    width:300px;
+    position: relative;
+    animation: move_right3 8s infinite;
+}
+.move4 {
+    width:300px;
+    position: relative;
+    animation: move_right4 1s infinite;
+}
+@keyframes circular {
+    0% {
+        transform: rotate(0deg) 
+            translateY(100px) rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg) 
+            translateY(100px) rotate(-360deg);
+    }
+}
