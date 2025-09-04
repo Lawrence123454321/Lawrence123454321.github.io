@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Hi</title>
+        <link rel="stylesheet" href="inputs.css"/>
         <style>
             a {
                 color:darkslategray;
@@ -11,7 +12,12 @@
     <body>
         <div class="main">
             <p id="Test">Please enter admin passkey:</p>
-            <input id="key" maxlength="10" type="password" />
+            <!--<input id="key" maxlength="10" type="password" />-->
+            <div class="col-3 input-effect">
+        	    <input id="key" class="effect-22" type="password" placeholder="">
+                <label>Passkey</label>
+                <span class="focus-bg"></span>
+            </div>
             <button id="submit">Verify</button>
         </div>
         <script>
@@ -21,8 +27,10 @@
             const urlParams = new URLSearchParams(window.location.search);
             const param = urlParams.get('next');
             function oc() {
-                p.innerHTML="Redirecting to "+param+"...";
-                window.location.href=param;
+                if(i.textContent="Lawrence L") {
+                    p.innerHTML="Redirecting to "+param+"...";
+                    window.location.href=param;
+                }
             }
             s.addEventListener("click", oc);
         </script>
