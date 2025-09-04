@@ -12,7 +12,7 @@
         <div class="main">
             <p id="Test">Please enter admin passkey:</p>
             <input id="key" maxlength="10" type="password" />
-            <button id="submit"></button>
+            <button id="submit">Verify</button>
         </div>
         <script>
             let i=document.getElementById("key");
@@ -21,7 +21,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const param = urlParams.get('next');
             function oc() {
-                p.innerHTML=param;
+                p.innerHTML="Redirecting to "+param+"...";
+                window.location.href=param;
             }
             document.addEventListener("click", oc);
         </script>
