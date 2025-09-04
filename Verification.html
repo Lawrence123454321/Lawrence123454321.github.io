@@ -18,6 +18,7 @@
                 <label>Passkey</label>
                 <span class="focus-bg"></span>
             </div>
+            <br />
             <button id="submit">Verify</button>
         </div>
         <script>
@@ -27,7 +28,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const param = urlParams.get('next');
             function oc() {
-                if(i.textContent="Lawrence L") {
+                if(i.textContent=="Lawrence L") {
                     p.innerHTML="Redirecting to "+param+"...";
                     window.location.href=param;
                 }
