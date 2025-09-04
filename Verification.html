@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hi</title>
+        <style>
+            a {
+                color:darkslategray;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <p id="Test">Please enter admin passkey:</p>
+            <input id="key" maxlength="10" type="password" />
+            <button id="submit"></button>
+        </div>
+        <script>
+            let i=document.getElementById("key");
+            let s=document.getElementById("submit");
+            let p=document.getElementById("Test");
+            const urlParams = new URLSearchParams(window.location.search);
+            const param = urlParams.get('next');
+            function oc() {
+                p.innerHTML=param;
+            }
+            document.addEventListener("click", oc);
+        </script>
+        <script src="navbar.js"></script>
+    </body>
+</html>
