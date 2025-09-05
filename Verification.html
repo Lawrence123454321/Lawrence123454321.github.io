@@ -21,22 +21,7 @@
             <br />
             <button id="submit">Verify</button>
         </div>
-        <script>
-            let i=document.getElementById("key");
-            let s=document.getElementById("submit");
-            let p=document.getElementById("Test");
-            const urlParams = new URLSearchParams(window.location.search);
-            const param = urlParams.get('next');
-            function oc() {
-                if(i.textContent=="Lawrence L") {
-                    alert("Successful");
-                    p.innerHTML="Redirecting to "+param+"...";
-                    window.location.href=param;
-                }
-                alert("Unsuccessful");
-            }
-            s.addEventListener("click", oc);
-        </script>
+        <script src="Verification.js"></script>
         <script src="navbar.js"></script>
     </body>
 </html>
