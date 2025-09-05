@@ -29,9 +29,11 @@
             const param = urlParams.get('next');
             function oc() {
                 if(i.textContent=="Lawrence L") {
+                    alert("Successful");
                     p.innerHTML="Redirecting to "+param+"...";
                     window.location.href=param;
                 }
+                alert("Unsuccessful");
             }
             s.addEventListener("click", oc);
         </script>
