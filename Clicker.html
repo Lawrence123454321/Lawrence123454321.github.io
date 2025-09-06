@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Untitled Page</title>
+        <link rel="stylesheet" href="inputs.css"/>
+        <style>
+            a {
+                color:darkslategray;
+            }
+            #click {
+                text-align: center;
+                width: 100px;
+                height: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <span>This is <span id="crossout">a</span> boring game.</span>
+            <button id="click">Click Me</button>
+            <span id="counter"></span>
+        </div>
+        <script>
+            let click=document.getElementById("click");
+            let crossout=document.getElementById("crossout");
+            let counter=document.getElementById("counter");
+            let clicks=0;
+            let click_increment=1;
+            function clicked(){
+                clicks+=click_increment;
+                crossout.innerHTML="not a";
+                counter.innerHTML=clicks;
+            }
+        </script>
+        <script src="navbar.js"></script>
+    </body>
+</html>
