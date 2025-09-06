@@ -11,6 +11,13 @@
                 text-align: center;
                 width: 100px;
                 height: 200px;
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                border: 1px solid black;
+                background-color: #333;
+                color: #000;
             }
         </style>
     </head>
@@ -31,6 +38,7 @@
                 crossout.innerHTML="not a";
                 counter.innerHTML=clicks;
             }
+            click.addEventListener("click", clicked)
         </script>
         <script src="navbar.js"></script>
     </body>
