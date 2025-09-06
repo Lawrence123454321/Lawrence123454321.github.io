@@ -7,6 +7,9 @@
             a {
                 color:darkslategray;
             }
+            body {
+                background-color:#eee;
+            }
             #click {
                 text-align: center;
                 width: 100px;
@@ -17,7 +20,8 @@
                 left: 50%;
                 border: 1px solid black;
                 background-color: #333;
-                color: #000;
+                color: #fff;
+                border-radius: 3px;
             }
         </style>
     </head>
@@ -36,7 +40,9 @@
             function clicked(){
                 clicks+=click_increment;
                 crossout.innerHTML="not a";
-                counter.innerHTML=clicks;
+                counter.innerHTML="You clicked "
+                counter.innerHTML+=clicks;
+                counter.innerHTML+=" times now. How BORING. (Don't worry, tomorrow I'll make it less boring, for tonight sleep tight)"
             }
             click.addEventListener("click", clicked)
         </script>
