@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Verification Required</title>
+        <link rel="stylesheet" href="inputs.css"/>
+        <style>
+            a {
+                color:darkslategray;
+            }
+        </style>
+    </head>
+    <body style="background-color: #ccc">
+        <div class="main">
+            <button onclick="sendEmail()">Click to send</button>
+        </div>
+        <script>
+            function sendEmail() {
+                Email.send({
+                    Host: "smtp.office365.com",
+                    Username: "Lawrence-Liu12345@outlook.com",
+                    Password: "Lawrence Liu",
+                    To: "Lawrence-Liu123456@outlook.com",
+                    From: "Lawrence-Liu12345@outlook.com",
+                    Subject: "This is a test email",
+                    Body: `Hello`,
+                }).then((message) => alert("Email sent successfully!"));
+            }
+        </script>
+        <script src="navbar.js"></script>
+    </body>
+</html>

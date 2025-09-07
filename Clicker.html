@@ -1,51 +1,222 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Untitled Page</title>
-        <link rel="stylesheet" href="inputs.css"/>
-        <style>
-            a {
-                color:darkslategray;
-            }
-            body {
-                background-color:#eee;
-            }
-            #click {
-                text-align: center;
-                width: 100px;
-                height: 200px;
-                margin: 0;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                border: 1px solid black;
-                background-color: #333;
-                color: #fff;
-                border-radius: 3px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="main">
-            <span>This is <span id="crossout">a</span> boring game.</span>
-            <button id="click">Click Me</button>
-            <span id="counter"></span>
-        </div>
-        <script>
-            let click=document.getElementById("click");
-            let crossout=document.getElementById("crossout");
-            let counter=document.getElementById("counter");
-            let clicks=0;
-            let click_increment=1;
-            function clicked(){
-                clicks+=click_increment;
-                crossout.innerHTML="not a";
-                counter.innerHTML="You clicked "
-                counter.innerHTML+=clicks;
-                counter.innerHTML+=" times now. How BORING. (Don't worry, tomorrow I'll make it less boring, for tonight sleep tight)"
-            }
-            click.addEventListener("click", clicked)
-        </script>
-        <script src="navbar.js"></script>
-    </body>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CLICKER</title>
+  <style>
+    .btn-gradient {
+      background: linear-gradient(to right, #ccc2a4, #edcf72);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .game-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .center {
+      text-align: center;
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .float-in-box {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(50px);
+      animation: floatIn 0.5s ease-out forwards;
+    }
+
+    @keyframes floatIn {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0); /* Final position */
+      }
+    }
+  </style>
+</head>
+<body style="background-color: #333;">
+  <div style="margin-top: 50px; margin-right: 150px; margin-left: 150px" class="center game-container">
+    <div style="height: 120px"></div>
+    <button id="click_me" class="btn-gradient center" style="font-size: 30px">Click Me</button>
+    <button id="save" class="btn-gradient center" style="font-size: 30px">Save</button>
+    <div style="height:50px"></div>
+    <h3 id="score" class="text-gradient center" style="font-size: 30px; color: #fff;">Clicks: 0</h3>
+    <div style="height:30px"></div>
+    <div class="button-container">
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click1"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 40 clicks: Adds 1 per click">
+        Mouse
+      </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click2"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 300 clicks: Adds 10 per click">
+        Drag Click
+      </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click3"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 1.5k clicks: Clicks every second">
+        Clock
+      </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click4"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 20k clicks: Adds 150 per click">
+        Geometry Dash
+      </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click5"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Watch a guy eat. Requires 100k Clicks, adds 1k per click">
+        McClickalds
+      </button>
+    </div>
+  </div>
+<!--</div>-->
+<script src="dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let score = 0;
+  let clicks=0;
+  let auto_increment=0;
+  let score_increment=1;
+  let score_label = document.getElementById("score");
+  let first_time=true;
+  document.getElementById("click1").style.display="none";
+  document.getElementById("click2").style.display="none";
+  document.getElementById("click3").style.display="none";
+  document.getElementById("click4").style.display="none";
+  document.getElementById("click5").style.display="none";
+  function save(){
+    document.cookie = "score="+score;
+  }
+  function load() {
+    score=parseInt(document.cookie.substring(6));
+    if(Number.isNaN(score)){
+      score=0;
+    }
+  }
+  function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+  }
+  function inc(){
+    score+=auto_increment;
+    score_label.innerText="Clicks: "+score;
+  }
+  const intervalId = setInterval(inc, 1000);
+  function check(){
+    if(score<40){
+      document.getElementById("click1").style.display="none";
+    }
+    if(score<300){
+      document.getElementById("click2").style.display="none";
+    }
+    if(score<1500){
+      document.getElementById("click3").style.display="none";
+    }
+    if(score<20000){
+      document.getElementById("click4").style.display="none";
+    }
+    if(score<100000){
+      document.getElementById("click5").style.display="none";
+    }
+  }
+  function click(){
+    clicks+=1;
+    score+=score_increment;
+    score_label.innerText="Clicks: "+score;
+    if(score>=40){
+      document.getElementById("click1").style.display="block";
+    }
+    if(score>=300){
+      document.getElementById("click2").style.display="block";
+    }
+    if(score>=1500){
+      document.getElementById("click3").style.display="block";
+    }
+    if(score>=20000){
+      document.getElementById("click4").style.display="block";
+    }
+    if(score>=100000){
+      document.getElementById("click5").style.display="block";
+    }
+  }
+  function click1(){
+    score_increment+=1;
+    score-=40;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  function click2(){
+    score_increment+=10;
+    score-=300;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  function click3(){
+    auto_increment+=1;
+    score-=1500;
+    score+=auto_increment;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  function click4(){
+    score_increment+=150;
+    score-=20000;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  function click5(){
+    score_increment+=1000;
+    score-=100000;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  document.getElementById("click_me").addEventListener("click", click);
+  document.getElementById("save").addEventListener("click", save);
+  document.getElementById("click1").addEventListener("click", click1);
+  document.getElementById("click2").addEventListener("click", click2);
+  document.getElementById("click3").addEventListener("click", click3);
+  document.getElementById("click4").addEventListener("click", click4);
+  document.getElementById("click5").addEventListener("click", click5);
+</script>
+<noscript>
+  <div class="alert alert-warning" role="alert">
+    Javascript is Disabled. Please enable and reload.
+  </div>
+</noscript>
+</body>
 </html>
