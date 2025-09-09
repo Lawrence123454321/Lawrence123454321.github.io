@@ -104,6 +104,33 @@
               title="Watch a guy eat. Requires 100k Clicks, adds 1k per click">
         McClickalds
       </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click6"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 1M Clicks, clicks 150 every second">
+        Python Auto Clicker
+      </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click7"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 10M Clicks, adds random (0-150K) per click">
+        Gambler
+      </button>
+      <button style="width: 100px; height: 100px; font-size: 20px"
+              id="click8"
+              class="btn-gradient float-in-box btn btn-secondary"
+              display="none"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Requires 5B Clicks, clicks 10k every second">
+        C++ Auto Clicker
+      </button>
     </div>
   </div>
 <!--</div>-->
@@ -153,6 +180,15 @@
     if(score<100000){
       document.getElementById("click5").style.display="none";
     }
+    if(score<1000000){
+      document.getElementById("click6").style.display="none";
+    }
+    if(score<10000000){
+      document.getElementById("click7").style.display="none";
+    }
+    if(score<5000000000){
+      document.getElementById("click8").style.display="none";
+    }
   }
   function click(){
     clicks+=1;
@@ -172,6 +208,15 @@
     }
     if(score>=100000){
       document.getElementById("click5").style.display="block";
+    }
+    if(score>=1000000){
+      document.getElementById("click6").style.display="block";
+    }
+    if(score>=10000000){
+      document.getElementById("click7").style.display="block";
+    }
+    if(score>=5000000000){
+      document.getElementById("click8").style.display="block";
     }
   }
   function click1(){
@@ -205,6 +250,24 @@
     score_label.innerText="Clicks: "+score;
     check();
   }
+  function click6(){
+    auto_increment+=150;
+    score-=1000000;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  function click7(){
+    score_increment+=getRndInteger(0,150000);
+    score-=10000000;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
+  function click8(){
+    auto_increment+=10000;
+    score-=5000000000;
+    score_label.innerText="Clicks: "+score;
+    check();
+  }
   document.getElementById("click_me").addEventListener("click", click);
   document.getElementById("save").addEventListener("click", save);
   document.getElementById("click1").addEventListener("click", click1);
@@ -212,6 +275,9 @@
   document.getElementById("click3").addEventListener("click", click3);
   document.getElementById("click4").addEventListener("click", click4);
   document.getElementById("click5").addEventListener("click", click5);
+  document.getElementById("click6").addEventListener("click", click6);
+  document.getElementById("click7").addEventListener("click", click7);
+  document.getElementById("click8").addEventListener("click", click8);
 </script>
 <noscript>
   <div class="alert alert-warning" role="alert">
