@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content=
+        "width=device-width, initial-scale=1.0" />
+
+    <title>3D Cube</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas> </canvas>
+    <script>
+
+        // Constants
+        const BACKGROUND_COLOR = "black";
+        const CUBE_COLOR = "yellow";
+        const POINT_2D = function (x, y) {
+            this.x = x;
+            this.y = y;
+        };
+        const POINT_3D = function (x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        };
+
+        // Set up the canvas and context
+        var canvas = document.querySelector("canvas");
+        var context = canvas.getContext("2d");
+
+        // Dimensions
+        var h = document.documentElement.clientHeight;
+        var w = document.documentElement.clientWidth;
+        canvas.height = h;
+        canvas.width = w;
+
+        // Colors and lines
+        context.fillStyle = BACKGROUND_COLOR;
+        context.strokeStyle = CUBE_COLOR;
+        context.lineWidth = w / 100;
+        context.lineCap = "round";
+
+        // Cube parameters
+        var cube_x = 0;
+        var cube_y = 0;
+        var cube_z = 250;
+
+        var cube_size = 100;
+        var cube_vertices = [
+
+            // Back 4 vertices
+            new POINT_3D(
+                cube_x - cube_size,
+                cube_y - cube_size,
+                cube_z - cube_size
+            ),
+            new POINT_3D(
+                cube_x + cube_size,
+                cube_y - cube_size,
+                cube_z - cube_size
+            ),
+            new POINT_3D(
+                cube_x + cube_size,
+                cube_y + cube_size,
+                cube_z - cube_size
+            ),
+            new POINT_3D(
+                cube_x - cube_size,
+                cube_y + cube_size,
+                cube_z - cube_size
+            ),
+
+            // Front 4 vertices
+            new POINT_3D(
+                cube_x - cube_size,
+                cube_y - cube_size,
+                cube_z + cube_size
+            ),
+            new POINT_3D(
+                cube_x + cube_size,
+                cube_y - cube_size,
+                cube_z + cube_size
+            ),
+            new POINT_3D(
+                cube_x + cube_size,
+                cube_y + cube_size,
+                cube_z + cube_size
+            ),
+            new POINT_3D(
+                cube_x - cube_size,
+                cube_y + cube_size,
+                cube_z + cube_size
+            ),
+        ];
+
+        var cube_edges = [
+            [0, 1],
+            [1, 2],
+            [2, 3],
+            [3, 0], // Back face
+            [4, 5],
+            [5, 6],
+            [6, 7],
+            [7, 4], // Front face
+            [0, 4],
+            [1, 5],
+            [2, 6],
+            [3, 7], // Connecting sides
+        ];
+
+        function project(points3d, w, h) {
+
+            // Creating 2d point for every 3d point
+            var points2d = new Array(points3d.length);
+
+            var focal_length = 200;
+
+            for (let index = points3d.length - 1; 
+                            index > -1; --index) {
+                let p = points3d[index];
+
+                let x = p.x * (focal_length / p.z) + w * 0.5;
+                let y = p.y * (focal_length / p.z) + h * 0.5;
+
+                points2d[index] = new POINT_2D(x, y);
+            }
+
+            return points2d;
+        }
+
+        // Set up the animation loop
+        var timeDifference,
+            timeLast = 0;
+        requestAnimationFrame(loop);
+
+        function loop(currentTime) {
+            timeDifference = currentTime - timeLast;
+            timeLast = currentTime;
+
+            // Background
+            context.fillRect(0, 0, w, h);
+
+            // Draw each edge
+            var vertices = project(cube_vertices, w, h);
+            for (let edge of cube_edges) {
+                context.beginPath();
+                context.moveTo(
+                    vertices[edge[0]].x, 
+                    vertices[edge[0]].y
+                );
+                
+                context.lineTo(
+                    vertices[edge[1]].x, 
+                    vertices[edge[1]].y
+                );
+                
+                context.stroke();
+            }
+
+            // Call the next frame
+            requestAnimationFrame(loop);
+        }
+    </script>
+</body>
+
+</html>
