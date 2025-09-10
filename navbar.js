@@ -48,7 +48,7 @@ nav.innerHTML=
 <a href="index.html" class="link big">Home</a>
 <a href="Class.html" class="link">Class</a>
 <a href="Spare.html" class="link">Smol Projects</a>
-<a href="index.html" class="link">Experiments</a>
+<a href="Experiments.html" class="link">Experiments</a>
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
