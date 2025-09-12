@@ -3,14 +3,15 @@ let s=document.getElementById("submit");
 let p=document.getElementById("Test");
 const urlParams = new URLSearchParams(window.location.search);
 const param = urlParams.get('next');
+let a=generate(40);
 function oc() {
-    let a=generate(8);
-    console.log(a);
     if(i.value==a) {
         p.innerHTML="Redirecting to "+param+"...";
         window.location.href=param;
     }
     alert("Wrong Passkey!");
+    a=generate(40);
+    console.log(a);
 }
 function generate(length) {
     const characters = 'abcdefghijklmnopqrstuvwxyz';
