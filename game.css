@@ -14,17 +14,20 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  transition: 50ms linear;
 }
 
 .canvas-container {
  display: flex;
  justify-content: center; /* center horizontally */
  align-items: center; /* center vertically */
+  transition: 50ms linear;
 }
 
 .canvas-container > .canvas {
   width: 100%;
   height: 100%;
+  transition: 50ms linear;
 }
 
 .text-gradient {
@@ -38,6 +41,7 @@
   font-size: 24px;
   font-weight: bold;
   color: #eee4da;
+  transition: 50ms linear;
 }
 
 .game-board {
@@ -49,6 +53,7 @@
   padding: 10px;
   border-radius: 10px;
   font-size: large;
+  transition: 50ms linear;
 }
 
 .cell {
@@ -62,6 +67,7 @@
   font-size: 24px;
   font-weight: bold;
   color: #776e65;
+  transition: 50ms linear;
 }
 
 .cell-2 { background-color: #eee4da; }
