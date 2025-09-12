@@ -45,7 +45,7 @@ code {
 nav.className="nav";
 nav.innerHTML=
 `
-<a href="index.html" class="link big">Home</a>
+<a href="index.html" class="link big">lliu.fun</a>
 <a href="Class.html" class="link">Class</a>
 <a href="Spare.html" class="link">Smol Projects</a>
 <a href="Experiments.html" class="link">Experiments</a>
