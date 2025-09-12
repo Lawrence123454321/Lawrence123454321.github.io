@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User Bio generator</title>
+        <style>
+            a {
+                color:darkslategray;
+            }
+            .main {
+                border: 1px solid black;
+                border-radius: 20px;
+                box-shadow: 10px 10px 0px 0px black;
+                margin: auto;
+                width: 250px;
+                height: 400px;
+                background-color: darkblue;
+                padding-left:10px;
+                padding-right:20px;
+            }
+            .text {
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Web Bio</h1>
+        <div class="main">
+            <p class="text">Please tell us your name:</p>
+            <input type="text" id="i_name" />
+            <p class="text">Hometown:</p>
+            <input type="text" id="i_ht" />
+            <p class="text">Age:</p>
+            <input type="number" id="i_age" />
+            <br />
+            <br />
+            <button id="sub">Add fields</button>
+            <p class="text">Generate User Bio</p>
+            <p style="background-color: white;" id="gen"></p>
+        </div>
+        <script>
+            function submit_info(){
+                let name=document.getElementById("i_name").value;
+                let ht=document.getElementById("i_ht").value;
+                let age=document.getElementById("i_age").value;
+                document.getElementById("gen").innerHTML="Hi, my name is "+name+". I am "+age+" years old. I am from "+ht+". Welcome to my profile!";
+            }
+            document.getElementById("sub").addEventListener("click", submit_info);
+        </script>
+        <script src="navbar.js"></script>
+    </body>
+</html>
