@@ -10,7 +10,7 @@ function oc() {
         window.location.href=param;
     }
     alert("Wrong Passkey!");
-    a=generate(40);
+    a=generate(20);
     console.log(a);
 }
 function generate(length) {
