@@ -38,6 +38,14 @@ style.innerHTML=
     border: 1px solid #000;
     transition: 300ms linear;
 }
+.rightlink {
+    margin-right:0px;
+    padding-right:10px;
+    color: #ccc;
+    font-size: 1.4rem;
+    transition: 200ms linear;
+    
+}
 code {
     color:brown;
 }
@@ -52,6 +60,7 @@ nav.innerHTML=
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
+<a href="Class.html" class="rightlink">Login</a>
 `;
 document.head.appendChild(style);
 document.body.prepend(nav);
