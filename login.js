@@ -7,3 +7,4 @@ function submit() {
         window.location.href=param;
     }
 }
+document.getElementById("log").addEventListener("click", submit);
