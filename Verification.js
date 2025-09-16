@@ -3,23 +3,28 @@ let s=document.getElementById("submit");
 let p=document.getElementById("Test");
 const urlParams = new URLSearchParams(window.location.search);
 const param = urlParams.get('next');
-let a=generate(40);
+let a=int_t("Hello Hecker");
 function oc() {
     if(i.value==a) {
         p.innerHTML="Redirecting to "+param+"...";
         window.location.href=param;
     }
-    alert("Wrong Passkey!");
-    a=generate(20);
-    console.log(a);
+    alert("Wrong Passkey! Passkey is "+a);
+    
 }
-function generate(length) {
-    const characters = 'abcdefghijklmnopqrstuvwxyz';
-    let result = '';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+async function hashSHA256(message) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+function int_t(message) {
+    let conversion = "";
+    message.forEach(element => {
+        conversion += element.charCodeAt(0);
+    });
+    return conversion;
 }
 s.addEventListener("click", oc);
