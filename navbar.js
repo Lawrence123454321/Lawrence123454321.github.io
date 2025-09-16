@@ -44,7 +44,6 @@ style.innerHTML=
     color: #ccc;
     font-size: 1.4rem;
     transition: 200ms linear;
-    
 }
 code {
     color:brown;
