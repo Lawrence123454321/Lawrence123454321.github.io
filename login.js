@@ -6,5 +6,6 @@ function submit() {
     if(email=="Lawrence-Liu12345@outlook.com"&&password=="Lawrence") {
         window.location.href=param;
     }
+    alert("Signed in successfully!")
 }
 document.getElementById("log").addEventListener("click", submit);
