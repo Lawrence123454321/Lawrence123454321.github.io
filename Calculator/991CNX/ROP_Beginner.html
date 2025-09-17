@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>lliu.fun</title>
+        <link rel="stylesheet" href="index.css" />
+    </head>
+    <body>
+        <div class="main">
+            <h1>Home</h1>
+            <h1 id="fx-991cnx-calculator-exploiting-a-rop-vulnerability-to-execute-arbitrary-code">fx-991cnx Calculator: Exploiting a ROP Vulnerability to Execute Arbitrary Code</h1>
+<p><a href="https://zhuanlan.zhihu.com/p/620584634">Qesole: [Advanced] fx-991cnx Calculator: Exploiting a ROP Vulnerability to Execute Arbitrary Code</a><a href="https://zhuanlan.zhihu.com/p/657962148">Qesole: &quot;Loop/Assembler&quot; 991cnx: Exploiting a ROP Vulnerability to Execute Arbitrary Code</a></p>
+<hr>
+<h2 id="0-before-reading-you-need-to-know-">0. Before Reading, You Need to Know:</h2>
+<h3 id="a-stack-basics-and-a-little-assembly-language-">a. Stack Basics and a Little Assembly Language:</h3>
+<p>The CASIO Classwiz series calculator uses the nX-u8 series processor chip and instruction set. Its assembly code is simple and easy to read. The calculator itself does not expose a programming interface; it is a simple function machine.</p>
+<p>Therefore, if you absolutely want to program this computer, you must use a special method, namely ROP (Return Oriented Programming). This is a common method used in reverse engineering. It exploits a vulnerability in the program itself, hijacking the PC (Program Counter, which stores the next instruction to be executed) register to force the CPU to jump to a function address. The stack is then modified so that the function returns to a prepared address. If the stack space is properly allocated and the program jumps one level at a time, forming a chain (ROP chain), a simple programming effect can be achieved.</p>
+<h3 id="b-introduction-to-stack-registers-and-rop-">b. Introduction to Stack, Registers, and ROP:</h3>
+<p>Before understanding the ROP mechanism, let&#39;s first understand what the stack is:</p>
+<p>Let&#39;s take a look at a scenario:</p>
+<blockquote>
+<p>Function A wants to call function B, and then function B returns to function A to continue execution. How is this achieved?</p>
+</blockquote>
+<p>As shown in the figure, the first step is to jump directly to the start address of that function, using the JMP instruction. This instruction directly sets the PC pointer (indicating the location of the next instruction on the CPU). This way, the CPU will begin execution at the new address (PROCEDURE B) in the next instruction cycle.</p>
+<p>Of course, if this is done directly, there will be a problem—the program will not be able to return. Therefore, the solution is to save the address of the instruction following the call instruction before jumping to a new location. This is the address to which the function should return after the call. The nX-u8 series stores this address in the LR register. When the function returns, the value of this register is then assigned back to the PC register.</p>
+<p>However, a problem still exists: what if there are multiple levels of function calls? Each call overwrites the LR register, ensuring that only the last level of function call can return normally.</p>
+<p>For example: P1 calls P2, with LR equal to the return address of P1. Then, P2 calls P3, with LR equal to the return address of P2. When P3 returns, the value of LR is assigned to the PC register, and the CPU begins execution from P2&#39;s return address. When P2 returns to P1, the value of LR is still the return address of P2 (the return address of P1 was overwritten when P2 called it). Therefore, P2 never returns.</p>
+<p>To resolve this issue, we can push the value of the LR register onto the <strong>stack</strong>.</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-ebd3ab2643a54e6f247946e127b4c740_b.jpg) A stack is a <strong>first-in, last-out</strong> data structure. Whatever is <strong>pushed</strong> first is <strong>popped</strong> last.</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-c7a43bad3dae8dde70a042137cdc5a3f_b.jpg)
+As shown in the figure, you should be able to guess what we&#39;re going to do, right?</p>
+<p>That&#39;s right! PUSH the LR before each function begins, and then POP the PC upon return.</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-b82c87ad91108a61d058df16ee68224b_b.jpg)
+As shown in the figure, as long as we <strong>ensure that each call and return occurs in pairs</strong>, our program can call and return functions smoothly.</p>
+<p>You&#39;ve probably noticed that if the PUSH LR and POP PC statements don&#39;t appear in a pair, the function won&#39;t return correctly:</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-2d75dff264ae169f0ecbc77368f05178_b.jpg)
+As shown in the figure, if the PUSH LR statement is skipped when entering function P1, when execution reaches the POP PC statement, since the LR has not been pushed to the stack beforehand, the value popped during the POP PC statement is no longer the return address of P1, but the previous value on the stack. Of course, the CPU doesn&#39;t check the address represented by this data; it simply jumps to the address it&#39;s requested. Therefore, what happens next is unpredictable, as it depends on the previous stack data. Typically, this is when the program crashes, because the stack is often used to store other values ​​that might not belong to a specific address. When the CPU executes past this value, an error occurs (for example, a program might have previously pushed the address of an image onto the stack, causing the CPU to crash when it jumps to that address).</p>
+<p>Now, let&#39;s imagine what happens if we can pre-arrange the stack data, as shown in the figure:</p>
+<p>For example, here, we push two custom addresses (which might be our own program).</p>
+<p>Then, we skip the PUSH LR during function calls (for example, the original program calls <addr:04>, but we make it execute <addr:08>, skipping the PUSH LR at the beginning of the function).</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-c0b6f5c19f2f7a7aec2a02b5655ff1ed_b.jpg)
+This way, when it reaches the POP When the PC is called, the value popped out is no longer the return address of the P1 function, but the pre-designed HACK P1. This puts the CPU instructions in our hands.</p>
+<p><strong>This is the principle of ROP</strong></p>
+<hr>
+<h2 id="1-how-to-trigger-rop-in-991cnx-">1. How to trigger ROP in 991CNX?</h2>
+<p>This step has already been done for us by our predecessors.</p>
+<p><a href="http://casiocalc.wikidot.com/exploits-of-classwiz-calculator-model">CASIO fx-ES PLUS calculator exploits</a><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-6e2a1afc24930dcd76a0911fe91eedbb_b.jpg)
+Several foreign researchers discovered a vulnerability: entering a certain length of data before the character &quot;an&quot; can change the position of certain pointers.</p>
+<p>As shown in the figure, they found that when there are 110 characters before &quot;an&quot; and the [=] key is pressed, the position of the pointer in the calculator&#39;s redo buffer (which is where you clear the screen by pressing the [←] key to recall the previous input) changes.</p>
+<p>As we all know, every time you press the [=] key, all your input is copied to the redo buffer, so that if you accidentally delete it, you can press the [←] key to recall it. However, because we modified the value of a data address in this area, the next time we copy data, it will be copied to a new location instead of the redo buffer.</p>
+<p>After their research, they discovered that this data is copied to a space below the stack, roughly like this:</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-465f3ae7e2897b6a81a28ff091607004_b.jpg)</p>
+<p>Furthermore, <strong>this location is exactly <34 bytes></strong> away from the top of the stack!</p>
+<p>This means that if you enter 34 bytes of arbitrary data and then enter a few more bytes, <strong>the last few bytes will be overwritten</strong> to the top of the stack, <strong>where the function return address was originally stored</strong>! (Don&#39;t forget, this copy function itself is implemented by a function (smart_strcpy), so when it&#39;s called, it will definitely push the LR register first. Furthermore, this function only copies the string and doesn&#39;t involve any other stack manipulation, so we can be sure that the top of the stack contains the return address.)</p>
+<p>Imagine this: when pressing [=], some data is copied, and part of it is overwritten on the stack. If we can arrange this data in advance, then when the copy function ends, POP PC will put the arranged address into the PC register. At this point, <strong>the CPU will do the work for us!</strong></p>
+<hr>
+<h2 id="2-functions-symbol-table-and-reversing-assembly-code">2. Functions, Symbol Table, and Reversing Assembly Code</h2>
+<p>To proceed, we must know which addresses we can exploit. Fortunately, the 991cnx ROM has been decompiled, and some function addresses have been discovered. The relevant information is in my Github repository below. Of course, based on their research, I further cracked some useful function addresses using the assembly code, such as <strong>key detection, more convenient register operations, and so on (more on that later).</strong></p>
+<p><a href="https://github.com/qiufuyu123/fxesplus/tree/master/991cnx">fxesplus/991cnx at master · qiufuyu123/fxesplus</a> This is a GitHub repository forked from user202729, which adds some new addresses and decompiled assembly code.</p>
+<p>Open <strong>991cnx --&gt; betterlabels.txt</strong> to see a list of commonly used addresses. _disas.txt contains the assembly code for the actual ROM.</p>
+<hr>
+<h2 id="3-how-do-i-enter-these-addresses-">3. How do I enter these addresses?</h2>
+<p>The addresses in the betterlabels file are all in hexadecimal format, and the CPU must load addresses in bytecode format. So how do I enter these addresses into a calculator?</p>
+<p>As we all know, each character displayed on a calculator has a corresponding encoding. The calculator internally stores these encodings, which consist of single-byte and double-byte codes. This means that as long as the encoding corresponding to the input is equal to the address (data), the CPU will process it as an address when executing.</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-e636b2bc4ae315835892fb5f2ef00fcf_b.jpg)
+For a detailed character list, see this post.</p>
+<p>For example, let&#39;s input the hexadecimal value (address) <strong>2:20FE</strong> to display a string.</p>
+<p>First, convert it to little-endian byte order: FE 20 x2 xx (addresses are 2-byte aligned, so they are 4 bytes, and x here represents anything).</p>
+<p>That is, the hexadecimal representation of this address is FE 20 32 20 (x here can be anything).</p>
+<p>Then, we look up the hexadecimal value in a table (characters starting with FE are double-byte characters; look up the FE double-byte character table). We break the hexadecimal value into two digits, for example, 20 --&gt; &#39;2&#39; , &#39;0&#39;. First, find &#39;2&#39; in the left column, then locate &#39;0&#39; in the row above.</p>
+<p>This gives us the following: Pa&gt;kgf/cm² 2 0</p>
+<p>At this point, we can input: SHIFT, 8, Down, 2, 6 (to type Pa&gt;kgf/cm²), 2 (to type the number 2), 0 (to type the number 0).</p>
+<hr>
+<h2 id="4-a-little-practice-">4. A Little Practice:</h2>
+<p>Looking at the function table, we see that 2:20FE receives the value of er2 as the address of a string. So how do we assign a value to er2?</p>
+<p>A simple method is...</p>
+<p><strong>We don&#39;t need to assign a value</strong></p>
+<p>By looking at the source code for smart_strcpy (which automatically copies to the redo area when the [=] key is pressed), we see that this function automatically assigns the value of er2 to the address of the input buffer.</p>
+<p><strong>This means:</strong></p>
+<p>After an overflows, if you enter: <34 bytes> FE 20 32 20 on the screen and then press the [=] key, the value of er2 is automatically copied to</p>
+<p>(--&gt; here!) <34 bytes> FE 20 32 20</p>
+<p>Since a line consists of 17 characters, we know that after pressing the [=] sign, the calculator will display the first 17 bytes of data on the screen according to the <strong>secondary character table</strong>.</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-974833751216e19ce033ad518b12dbce_b.jpg)
+This is the secondary character table.</p>
+<p>Suppose we want to display &quot;12345678901234567&quot; on the screen.</p>
+<p>First, look at the secondary character table and find the corresponding hexadecimal encoding:</p>
+<p>31 32 33 34 35 ... ... ... 35 36 37</p>
+<p>Then, we need to input these bytes into the first 17 characters of the input buffer.</p>
+<p>Looking up the <strong>first-level character table</strong>, we get:</p>
+<p>1 2 3 4 5 .... 7</p>
+<p>(That&#39;s right! 123...90 in the secondary character list corresponds exactly to 123...90 in the primary character list.</p>
+<p>Let&#39;s make a note of this first; we&#39;ll need to enter these 17 characters into the buffer later.</p>
+<p>In this way, we get all the content to be input:</p>
+<p>&lt; 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7&gt;<17bytes any single-byte character> <Pa>kgf/cm2 2 0 &gt;</p>
+<p>We can start:</p>
+<h3 id="a-enter-linear-complex-mode">a. Enter linear complex mode</h3>
+<p>First, enter [Linear Mode]:</p>
+<p>[SHIFT][Menu][1][3]</p>
+<p>Enter [Complex Mode]</p>
+<p>[Menu][2]</p>
+<h3 id="b-enter-the-character-converter">b. Enter the character converter</h3>
+<p>[SHIFT][8][Down][2][7][Left][1][=][Up][Left]</p>
+<h3 id="c-brush-an-">c. Brush &#39;an&#39;</h3>
+<p>[SHIFT][.(decimal point)][Left][Left][Right][i(imaginary number i(ENG key))][Left][9][DEL][DEL][Right][Right][DEL]</p>
+<p>At this point, there should be only one <code>an</code> on the screen Symbols</p>
+<p>Next, move the cursor to the number <code>an</code> and enter 100 digits (you can count using 123456789).</p>
+<p>Then, enter the <code>+</code> sign and continue entering 9 digits.</p>
+<blockquote>
+<p>You must have noticed:
+We want to enter 110 bytes of data, so why can&#39;t we just type 110 digits before <code>an</code>?
+The reason is: the 991cnx calculator doesn&#39;t allow numbers with more than 100 digits.
+So we use +123456789 to represent the remaining 10 bytes.
+Now, <100bytes><1byte(`+`)><9bytes><an> has exactly 110 bytes of data before <code>an</code>!</p>
+</blockquote>
+<p>Press [=]</p>
+<p>As expected, as previously described, the screen clears, and a certain pointer position has been changed.</p>
+<h3 id="d-enter-the-data-we-arranged-previously-">d. Enter the data we arranged previously.</h3>
+<p>Type <code>12345678901234567</code>. This totals 17 bytes, which is the line of characters we want to display.</p>
+<p>Type any 17 single-byte characters (search for them in the first-level single-byte character table). <strong>For convenience, I&#39;ve typed 17 1s here</strong></p>
+<p>Now, we have <34 bytes> of data. Enter the ROP address: FE 20 32 20</p>
+<p>This will output Pa&gt;kgf/cm² 2 0</p>
+<p><code>SHIFT,8,Down,2,6</code> <code>2</code> <code>0</code></p>
+<p>If all goes well, your input area should look like this:</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-816210e2cba8430bd537ed51b6274675_b.jpg)
+Press the [=] sign:</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-a326f7d8352db6bbe49f0407f9be6455_b.jpg)</p>
+<h3 id="e-what-happened-">e. What happened?</h3>
+<p>When pressing the [=] key, the input buffer is copied to the space below the stack, overwriting the top of the stack after the 34th byte. Then, smart_strcpy POP PC returns. Since the stack is overwritten, the return address is overwritten to: FE 20 32 20 . The CPU jumps to 2:20FE to execute.</p>
+<h2 id="5-small-practice-2-two-level-jump-rop-chain">5. Small Practice 2 — Two-Level Jump ROP Chain</h2>
+<h3 id="a-preparation">a. Preparation</h3>
+<p>Just now, we simply had the CPU perform a jump for us. According to our previous discussion, if the LR is not pushed after the jump, the next data item on the stack will be popped into the PC when the function returns. Using this feature, we can perform multi-level jumps:</p>
+<p>POP PC --&gt; <p0> Jump to <p1 skipping the LR push address> --&gt; POP PC --&gt; Since p1 did not push the LR, the return address is not <p0>, but the next data item on the stack.</p>
+<p>For example, here we...</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-6ac8e6abd26f99a43d3af08551c42476_b.jpg)</p>
+<p>Select <strong>2:21AE: Display a line of text (unlike 220FE, this address does not display the press PC, and the number of lines displayed can be controlled)</strong></p>
+<p>Since this address skips the push LR instruction in the original function (2:21BC), when it returns, the next stack address will be popped into the PC. As long as we arrange the next stack address, we can implement a second-level ROP jump.</p>
+<p>Let&#39;s implement this function: **Display a line of text --&gt; Display another line of text.</p>
+<p>First, look at table 2:21AE. I won&#39;t need to do that here, as I&#39;ve already compiled it:</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-3b2b38c96b8d99c086801b5402d156a8_b.jpg)
+There&#39;s another problem here: <strong>2:21AE sets the number of displayed lines based on the value of register r0. We need to assign a value to register r0 before calling this address. </strong></p>
+<h3 id="b-registers">b. Registers</h3>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-5dd155002a490d099e55ccb575434e8b_b.jpg) This is the register of the u8 chip. There are 16 registers (r0-15), each storing one byte of data.</p>
+<p>er0 is a two-byte register, corresponding to r0 and r1. This means that if we want to assign a value to r0, besides directly setting r0 to xxx, we can also assign a value to the high byte of the er0 register (corresponding to r0), and leave the remaining byte (corresponding to r1) alone.</p>
+<p>xr0 is a four-byte register, corresponding to r0, r1, r2, and r3. Theoretically, we could also assign a value to xr0 to achieve the same result as assigning a value to r0. However, since xr0 includes r2 and r3, which is the er2 register (remember, er2 stores the pointer to the string to be displayed), we won&#39;t use this method.</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-406eb0a2fae137d5cae08cf31633a96b_b.jpg) As shown in the figure, 1:21A8 represents pop er0, which assigns two bytes from the stack to register er0.</p>
+<blockquote>
+<p>Why not choose an address that can directly execute pop r0?
+Of course, we can certainly find such an address.
+However, the question is whether the address contains special characters: for example, address 1:769C is pop r0.</p>
+</blockquote>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-f1cafcd7ec39e6e8b1bc1d99d835226b_b.jpg)</p>
+<blockquote>
+<p>However, we can&#39;t use it for now because 9C is an <code>@</code> symbol in the character table, a special character that requires a special method to be flashed, which we won&#39;t use here.</p>
+</blockquote>
+<p>Therefore, we choose to use the address 1:21A8, corresponding to the characters * e e (x)**.</p>
+<p>Because it executes pop er0, we also need to allocate two bytes after the stack, representing r0 and r1.</p>
+<p>Here, we want to display on the first line, so r0 should be assigned 0x0? (? represents any value). Since the line number is based on the lower 8 bits, the upper 8 bits are ignored. 0-3 represent lines 1-4, respectively.</p>
+<p>Suppose we assign r0 to 0x01. Let&#39;s look up the table:</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-931d93fc824fbf8bca72abe1dfc0185c_b.jpg) <strong>Obviously, this is a special character and we can&#39;t enter it directly</strong></p>
+<p><strong>What should we do?</strong></p>
+<p><strong>Since the primary character list doesn&#39;t meet our needs, let&#39;s look at the secondary character list:</strong></p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-ba6d80b5f6c5b1818855a87355d69266_b.jpg)
+As you can see, the double-byte character <code>in&gt;cm</code> represents the encoding FE 01, but we only want to keep 01. What should we do? ? ?</p>
+<p>Let&#39;s look back at the data representing the ROP address:</p>
+<p><strong><em>1:21A8 -- &gt; \</em> e e (x)*</strong></p>
+<p>As you can see, due to the 2-byte stack alignment, we need to manually add an arbitrary single-byte character (x) at the end of the address. If we store 0xFE from <em>in&gt;cm</em> into this byte used solely for alignment, and then put 01 into the next byte, it would look like this:</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-c8bab681ef6db46aa93e7eaf2b1ae9b3_b.jpg)
+As you can see, although five characters were entered, since In&gt;cm is a double-byte string, the corresponding hexadecimal data is still 6 bytes.</p>
+<p>A8 21 21 FE --&gt; pop er0 (0xFE is the alignment byte and has no effect)</p>
+<p>01 30 --&gt; Data on the stack, pop When er0 is executed, it is popped and assigned to the er0 register --&gt; r0: 01 r1: 30</p>
+<p>Through this one-step operation, <strong>we cleverly avoid the special character 0x01</strong></p>
+<h3 id="c-start-input">c. Start input</h3>
+<p>As usual, first enter 110an mode (linear complex mode brushes an, the first 110 bytes of an)</p>
+<p>First enter the 17 characters to be displayed <1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7></p>
+<p>Enter the remaining 17 bytes <1 1 1 1 ..... 1></p>
+<p>Enter [*(multiplication sign)] [e] [e] [in&gt;cm (SHIFT 8 1 1)] [0]</p>
+<p>Then enter the next stack value:</p>
+<p>Enter C (SHIFT,÷), e (natural constant, ALPHA, x10x (the one to the right of the decimal point)), 2, x (the <code>x</code> variable in the upper right corner)</p>
+<blockquote>
+<p>Why is an x ​​variable used for any character here?
+To clear the screen.
+We noticed in the previous practice that the screen was not cleared after pressing the [=] sign, resulting in a very messy result.
+The calculator has a feature: when entering a calculation containing any variable,
+pressing CALC followed by [=] will clear the screen before performing subsequent operations.
+In theory, as long as there is one variable (x, y, A, B, C, D, E, F, M) in your input, it will be sufficient.
+You can choose to place it somewhere unimportant, such as inserting it in the remaining 17 bytes, or inserting it at the end of the address (the address is aligned to 2 bytes, and the last byte is only for alignment). I&#39;ll choose the latter here.</p>
+</blockquote>
+<p>Then enter the next stack value:</p>
+<blockquote>
+<p>Pa&gt; kgf/cm2 2 0</p>
+</blockquote>
+<p>If everything is entered correctly, the screen should look like this:</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-a34511ccc623048dec95ae97c053e37e_b.jpg)
+First, press <code>CALC</code> (the key in the upper left corner), then press the [=] sign.</p>
+<p><img src="(20240419" alt="">fx-991cnx Calculator Exploits ROP Vulnerability to Execute Arbitrary Code_Qesole/v2-41296a98da44152eae5c20441a65257e_b.jpg)
+Do you notice anything strange?</p>
+<p><strong>That&#39;s right! When the print function is called the second time, the content is no longer the first 17 bytes of data we entered, but the next 17 bytes. </strong></p>
+<p><strong>This means that when displaying text, the value of register er2 is automatically shifted back 17 bytes! </strong></p>
+<hr>
+<h3 id="d-differences-between-different-text-display-functions">d. Differences Between Different Text Display Functions</h3>
+<p><strong>You might be wondering why we used 2:20FE once and 2:21AE the other time to display text.</strong></p>
+<p><strong>Actually, there are subtle differences between these different text display functions.<em>:</em></strong></p>
+<p>For 2:20FE:</p>
+<p>It calls 2:21AE twice, once to display the contents of er2 and once to press AC, then waits for user input before crashing.</p>
+<p>For 2:21AE:</p>
+<p>It simply displays the content on the screen. <strong>It doesn&#39;t crash, but instead continues with a pop-up return call! </strong></p>
+<p><strong>See the problem? </strong></p>
+<p><strong>That&#39;s right! </strong>If the last call was 2:21AE, it would still execute a pop-up return call. However, since we haven&#39;t prepared any other addresses on the stack, <strong>it will forcibly return from the stack.</strong> So where does it return to? We don&#39;t know, but there&#39;s a high probability the calculator will crash.</p>
+<p>So, we try to ensure the last address in the ROP chain is a non-return address.</p>
+<p>Is there a function that simply displays text on the screen, doesn&#39;t display &quot;PRESS AC,&quot; and then crashes (without returning)? The answer is yes:</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-f18c3de0153c7b84e34790c3fa5eae5f_b.jpg)
+2:20FE</p>
+<p>Since FE is still a special symbol and can&#39;t be typed, we combine it with 20 (FE 20).</p>
+<p>Query the double-byte character table and get the <code>mti</code> symbol (SHIFT, 7, 3, x, where x represents the key that holds the x variable).</p>
+<p>2:205C --&gt; 5C20x2xx (little-endian) --&gt; FE 5C x2 xx --&gt; mti 2 (x)</p>
+<h3 id="e-trying-to-display-characters-better-">e. Trying to display characters better:</h3>
+<p>This time, we use the 2:20FE function to display characters:</p>
+<p>As usual, enter 110an mode.</p>
+<p>Let&#39;s try some English letters:</p>
+<p>By consulting the secondary character table, we know that the letter A is encoded as 0x41, corresponding to the <code>Ans</code> character in the primary character table. The space symbol is encoded as 0x20, corresponding to the <code>i</code> (imaginary number i) character in the primary character table.</p>
+<p>Enter the first 17 bytes of data:</p>
+<p>Ans i i i i i i i ... i (16 i&#39;s)</p>
+<p>Last 17 bytes of data:</p>
+<p>111111111...111 (17 arbitrary single-byte characters, I used 1 here)</p>
+<p>Then [DEL] deletes the last i.</p>
+<blockquote>
+<p>Similar to the previous pop er0 function, the double-byte symbol mti (FE 5C) doesn&#39;t need the FE byte, so the first byte is placed before the <34 bytes> and the second byte is placed after the <34 bytes>, which is the value of POP PC.</p>
+</blockquote>
+<p>Type mti(SHIFT,7,3,X),2,x (the variable x still clears the screen).</p>
+<p>It should look like this:</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-743cb5a69742d19d4ea89d3c2f53bf70_b.jpg) Press [CALC] [=]</p>
+<p><img src="(20240419" alt="">fx-991cnx calculator exploits ROP vulnerability to execute arbitrary code_Qesole/v2-7ff778f8c7c0fffdb8a43bcaeca3d580_b.jpg)</p>
+<h2 id="6-conclusion">6. Conclusion</h2>
+<p>Congratulations! If you understand and apply all the information above, you have a good understanding of ROP techniques.</p>
+<p>Of course, there are many things not covered in this article—achieving the effect in the opening video requires additional techniques, such as special character swipes and a larger input area (no longer just the first 34 bytes).</p>
+<p>These will be covered in the <strong>next article</strong>, so stay tuned!</p>
+
+        </div>
+        <script src="navbar.js"></script>
+    </body>
+</html>
