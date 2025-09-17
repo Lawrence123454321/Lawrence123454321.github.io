@@ -56,10 +56,10 @@ nav.innerHTML=
 <a href="Class.html" class="link">Class</a>
 <a href="Spare.html" class="link">Smol Projects</a>
 <a href="Experiments.html" class="link">Experiments</a>
+<a href="Calculator" class="link">Calculators</a>
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
-<a href="index.html" class="link">?</a>
-<a href="Class.html" class="rightlink">Login</a>
+<a href="login.html" class="rightlink">Login</a>
 `;
 document.head.appendChild(style);
 document.body.prepend(nav);
