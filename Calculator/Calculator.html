@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>lliu.fun</title>
+        <link rel="stylesheet" href="index.css" />
+        <style>
+            .row {
+                display: flex;
+                gap: 10px;
+            }
+            .btn {
+                height: 50px;
+                width: 50px;
+                font-size: larger;
+            }
+            .calculator {
+                font-family: monospace;
+            }
+            #display {
+                margin: auto;
+                width: 285px;
+                height: 30px;
+                font-size: large;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <h1>Calculator</h1>
+            <input type="text" id="display" placeholder="Enter an equation...">
+            <div class="calculator">
+                <div class="row">
+                    <button id="btn7" class="btn" onclick="add(7)">7</button>
+                    <button id="btn8" class="btn" onclick="add(8)">8</button>
+                    <button id="btn9" class="btn" onclick="add(9)">9</button>
+                    <button id="btnDEL" class="btn">DEL</button>
+                    <button id="btnAC" class="btn">AC</button>
+                </div>
+                <div class="row">
+                    <button id="btn4" class="btn" onclick="add(4)">4</button>
+                    <button id="btn5" class="btn" onclick="add(5)">5</button>
+                    <button id="btn6" class="btn" onclick="add(6)">6</button>
+                    <button id="btnMUL" class="btn" onclick="add('*')">*</button>
+                    <button id="btnDIV" class="btn" onclick="add('/')">/</button>
+                </div>
+                <div class="row">
+                    <button id="btn1" class="btn" onclick="add(1)">1</button>
+                    <button id="btn2" class="btn" onclick="add(2)">2</button>
+                    <button id="btn3" class="btn" onclick="add(3)">3</button>
+                    <button id="btnPLS" class="btn" onclick="add('+')">+</button>
+                    <button id="btnMIN" class="btn" onclick="add('-')">-</button>
+                </div>
+                <div class="row">
+                    <button id="btn0" class="btn" onclick="add(0)">0</button>
+                    <button id="btnDOT" class="btn" onclick="add('.')">.</button>
+                    <button id="btnlp" class="btn" onclick="add('(')">(</button>
+                    <button id="btnrp" class="btn" onclick="add(')')">)</button>
+                    <button id="btnEXE" class="btn" onclick="execute()">=</button>
+                </div>
+            </div>
+            <p id="debug">
+ 
+            </p>
+            <p>
+                0-9: Numbers<br />
+                A: Answer<br />
+                C: Clear<br />
+                X: x10^<br />
+                E/Enter: Execute<br />
+                Dot: Decmial Point<br />
+            </p>
+        </div>
+        <script src="../navbar.js"></script>
+        <script>
+            let first="",second="",operation="",ans=0,curpos=0,firstp=0,secondp=0;
+            let disp=document.getElementById("display");
+            class Expression {
+                constructor(f,o,s) {
+                    this.first=f;
+                    this.opr=o;
+                    this.second=s;
+                }
+                eval() {
+                    if(typeof(this.first)=="number"&&typeof(this.second)=="object") {
+                        if(this.opr=="+")
+                            this.result=this.first+this.second.eval();
+                        else if(this.opr=="-")
+                            this.result=this.first-this.second.eval();
+                        else if(this.opr=="*")
+                            this.result=this.first*this.second.eval();
+                        else if(this.opr=="/")
+                            this.result=this.first/this.second.eval();
+                        else console.log("Error");
+                    }
+                    else if(typeof(this.first)=="object"&&typeof(this.second)=="number") {
+                        if(this.opr=="+")
+                            this.result=this.first.eval()+this.second;
+                        else if(this.opr=="-")
+                            this.result=this.first.eval()-this.second;
+                        else if(this.opr=="*")
+                            this.result=this.first.eval()*this.second;
+                        else if(this.opr=="/")
+                            this.result=this.first.eval()/this.second;
+                        else console.log("Error");
+                    }
+                    else if(typeof(this.first)=="object"&&typeof(this.second)=="object") {
+                        if(this.opr=="+")
+                            this.result=this.first.eval()+this.second.eval();
+                        else if(this.opr=="-")
+                            this.result=this.first.eval()-this.second.eval();
+                        else if(this.opr=="*")
+                            this.result=this.first.eval()*this.second.eval();
+                        else if(this.opr=="/")
+                            this.result=this.first.eval()/this.second.eval();
+                        else console.log("Error");
+                    }
+                    else if(typeof(this.first)=="number"&&typeof(this.second)=="number") {
+                        if(this.opr=="+")
+                            this.result=this.first+this.second;
+                        else if(this.opr=="-")
+                            this.result=this.first-this.second;
+                        else if(this.opr=="*")
+                            this.result=this.first*this.second;
+                        else if(this.opr=="/")
+                            this.result=this.first/this.second;
+                        else console.log("Error");
+                    }
+                    return this.result;
+                }
+            }      
+            function parseSimpleExpr(str) {
+                let opr="",a=0,b=0;
+                if(str.includes("+")) {
+                    opr="+";
+                    let left=str.slice(0,str.indexOf("+")),right=str.slice(str.indexOf("+")+1,str.length);
+                    a=parseFloat(left);
+                    b=parseFloat(right);
+                }
+                else if(str.includes("-")) {
+                    opr="-";
+                    let left=str.slice(0,str.indexOf("-")),right=str.slice(str.indexOf("-")+1,str.length);
+                    a=parseFloat(left);
+                    b=parseFloat(right);
+                }
+                else if(str.includes("*")) {
+                    opr="*";
+                    let left=str.slice(0,str.indexOf("*")),right=str.slice(str.indexOf("*")+1,str.length);
+                    a=parseFloat(left);
+                    b=parseFloat(right);
+                }
+                else if(str.includes("/")) {
+                    opr="/";
+                    let left=str.slice(0,str.indexOf("/")),right=str.slice(str.indexOf("/")+1,str.length);
+                    a=parseFloat(left);
+                    b=parseFloat(right);
+                }
+                else return parseInt(str);
+                return new Expression(a,opr,b);
+            }
+            function parseNormalExpr(str) {
+                if (!str.includes("(")) {
+                    return parseSimpleExpr(str);
+                }
+                else {
+                    let idx=str.indexOf("(");
+                    let orig=idx;
+                    let second="";
+                    let opr="", left=true;
+                    let pc=1;
+                    while(pc>0) {
+                        idx++;
+                        if(str[idx]=="(") pc++;
+                        if(str[idx]==")") pc--;
+                    }
+                    let new_str=str.slice(str.indexOf("(")+1, idx);
+                    let determine_str=str.slice(idx+1,str.length);
+                    let opr_pos=0;
+                    if(determine_str=="") {
+                        determine_str=str.slice(0,orig);
+                        left=false;
+                        if(determine_str.includes("+")){
+                            opr_pos=determine_str.indexOf("+");
+                        }
+                        else if(determine_str.includes("-")){
+                            opr_pos=determine_str.indexOf("-");
+                        }
+                        else if(determine_str.includes("*")){
+                            opr_pos=determine_str.indexOf("*");
+                        }
+                        else if(determine_str.includes("/")){
+                            opr_pos=determine_str.indexOf("/");
+                        }
+                    }
+                    if(determine_str.includes("+")){
+                        if(left)
+                            left=true;
+                        opr="+";
+                        if(opr_pos==0)
+                            opr_pos=idx+1+determine_str.indexOf("+");
+                    }
+                    else if(determine_str.includes("-")){
+                        if(left)
+                            left=true;
+                        opr="-";
+                        if(opr_pos==0)
+                            opr_pos=idx+1+determine_str.indexOf("-");
+                    }
+                    else if(determine_str.includes("*")){
+                        if(left)
+                            left=true;
+                        opr="*";
+                        if(opr_pos==0)
+                            opr_pos=idx+1+determine_str.indexOf("*");
+                    }
+                    else if(determine_str.includes("/")){
+                        if(left)
+                            left=true;
+                        opr="/";
+                        if(opr_pos==0)
+                            opr_pos=idx+1+determine_str.indexOf("/");
+                    }
+                    else{
+                        left=false;
+                        let determine_str2=str.slice(0,orig);
+                        if(determine_str2.includes("+")){
+                            opr_pos=determine_str.indexOf("+");
+                            opr="+";
+                        }
+                        if(determine_str2.includes("-")){
+                            opr_pos=determine_str.indexOf("-");
+                            opr="-";
+                        }
+                        if(determine_str2.includes("*")){
+                            opr_pos=determine_str.indexOf("*");
+                            opr="*";
+                        }
+                        if(determine_str2.includes("/")){
+                            opr_pos=determine_str.indexOf("/");
+                            opr="/";
+                        }
+                    }
+                    console.log("--------- INFO ---------");
+                    console.log("determine_str: "+determine_str);
+                    console.log("          opr: "+opr);
+                    console.log(" index of opr: "+opr_pos);
+                    if(!left)
+                        second=str.slice(0,opr_pos);
+                    else
+                        second=str.slice(opr_pos+1,str.length);
+                    console.log("         left: "+left);
+                    console.log("       second: "+second);
+                    // prompt("Wish to proceed?");
+                    if(!left)
+                        second=str.slice(0,opr_pos);
+                    else
+                        second=str.slice(opr_pos+1,str.length);
+                    console.log("         left: "+left);
+                    console.log("       second: "+second);
+                    if(left)
+                        return new Expression(parseNormalExpr(new_str),opr,parseNormalExpr(second));
+                    else
+                        return new Expression(parseNormalExpr(second),opr,parseNormalExpr(new_str));
+                }
+            }
+            function execute() {
+                let result=parseNormalExpr(disp.value);
+                if (typeof(result)=="number")
+                    disp.value+=" = "+result;
+                else
+                    disp.value+=" = "+result.eval();
+            }
+            function executeOnEnter(e) {
+                if(e.code=="Enter") {
+                    execute();
+                }
+            }
+            function clear() {
+                disp.value="";
+            }
+            function del() {
+                disp.value[disp.value.length-2]='';
+            }
+            function add(digit){
+                disp.value+=digit;
+            }
+            document.getElementById("btnAC").addEventListener("click", clear);
+            document.getElementById("btnDEL").addEventListener("click", del);
+            document.addEventListener("keydown", executeOnEnter);
+            disp.addEventListener("keydown", executeOnEnter);
+        </script>
+    </body>
+</html>

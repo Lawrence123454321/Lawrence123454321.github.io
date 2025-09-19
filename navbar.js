@@ -48,6 +48,10 @@ style.innerHTML=
 code {
     color:brown;
 }
+
+a {
+    color:darkslategray;
+}
 `;
 nav.className="nav";
 nav.innerHTML=
