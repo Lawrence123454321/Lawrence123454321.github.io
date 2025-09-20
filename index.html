@@ -2,17 +2,145 @@
 <html>
     <head>
         <title>lliu.fun</title>
-        <link rel="stylesheet" href="index.css" />
+        <link rel="stylesheet" href="index.css"/>
+        <style>
+            @keyframes float-in {
+                0% {
+                    color: #111;
+                    margin-left: 40%;
+                    margin-top: 25%;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 1.2cm;
+                }
+                100% {
+                    color: #fff;
+                    margin-left: 40%;
+                    margin-top: 20%;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 1.5cm;
+                }
+            }
+            @keyframes float-in-2 {
+                0% {
+                    color: #111;
+                    margin-left: 10%;
+                    margin-right: 10%;
+                    margin-top: 13%;
+                    text-align: center;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 0.7cm;
+                }
+                100% {
+                    color: #fff;
+                    margin-left: 15%;
+                    margin-right: 15%;
+                    margin-top: 10%;
+                    text-align: center;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 0.9cm;
+                }
+            }
+            @keyframes appear-smooth {
+                0% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 100;
+                }
+            }
+            @keyframes disappear-smooth {
+                0% {
+                    opacity: 100;
+                }
+                100% {
+                    opacity: 0;
+                }
+            }
+            .top-text {
+                color: #fff;
+                margin-left: 40%;
+                margin-top: 20%;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 1.5cm;
+                animation: float-in 1s ease-in-out;
+            }
+            .top-text-2-start {
+                color: #fff;
+                margin-left: 15%;
+                margin-right: 15%;
+                margin-top: 10%;
+                text-align: center;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 0.9cm;
+            }
+            .top-text-2-anim {
+                color: #fff;
+                margin-left: 15%;
+                margin-right: 15%;
+                margin-top: 10%;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 0.9cm;
+                text-align: center;
+                animation: float-in-2 1s ease-in-out;
+            }
+            .hidden {
+                display: none;
+            }
+            #scrolldown {
+                color: #fff;
+                text-align: center;
+                font-family:Verdana, Geneva, Tahoma, sans-serif;
+                font-size: 1cm;
+                position: fixed;
+                bottom: 20px;
+                width: 100%;
+            }
+            .appear-smooth {
+                animation: appear-smooth 1s ease-in-out;
+            }
+            .disappear-smooth {
+                animation: disappear-smooth 1s ease-in-out;
+            }
+        </style>
     </head>
     <body>
-        <div class="main">
+        <!-- <img src="CodeBackground.jpg" /> -->
+        <p class="top-text"><b>Coding <br /> Redefined.</b></p>
+        <div class="">
+            <p id="box1t" class="top-text-2-start hidden">
+                lliu.fun
+                <br /><br />This is a collection of HTML projects and answers in the G7 CS Elective. You can click on "Class" on the navigation bar to start. 
+                There are also some small games and projects I made during my spare time in CS, you can check them out in the "Smol Projects" tab.
+                There are also some findings and experiment pages you can check out under the "Experiments" tab.
+            </p>
+        </div>
+        <p id="scrolldown">V</p>
+        <div style="height:1000px"></div>
+        <!-- <div class="main">
             <h1>Home</h1>
             <p>
                 This is a collection of HTML projects and answers in the G7 CS Elective. You can click on "Class" on the navigation bar to start. 
                 There are also some small games and projects I made during my spare time in CS, you can check them out in the "Smol Projects" tab.
                 There are also some findings and experiment pages you can check out under the "Experiments" tab.
             </p>
-        </div>
+        </div> -->
         <script src="navbar.js"></script>
+        <script>
+        window.addEventListener("scroll", function() {
+            const scrollPosition = window.scrollY; // Get vertical scroll position
+            if (scrollPosition > 120) {
+                document.getElementById("box1t").className = "top-text-2-anim";
+                console.log("scrolled");
+            };
+            if (scrollPosition > 750) {
+                document.getElementById("scrolldown").innerHTML="";
+                document.getElementById("scrolldown").className="disappear-smooth";
+            }
+            else {
+                document.getElementById("scrolldown").innerHTML="V";
+                document.getElementById("scrolldown").className="appear-smooth";
+            }
+        });
+        </script>
     </body>
 </html>

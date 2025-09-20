@@ -16,3 +16,6 @@ code {
     text-align: center;
     color:black;
 }
+body {
+    background-image: url("CodeBackground.jpg");
+}
