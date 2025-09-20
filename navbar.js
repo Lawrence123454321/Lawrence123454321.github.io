@@ -39,11 +39,18 @@ style.innerHTML=
     transition: 300ms linear;
 }
 .rightlink {
-    margin-right:0px;
+    margin-right:10px;
     padding-right:10px;
     color: #ccc;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     transition: 200ms linear;
+}
+.link:hover {
+    color: #333;
+    background-color:#bbb;
+    border: 2px solid #000;
+    border-radius: 3px;
+    transition: 150ms linear;
 }
 code {
     color:brown;
@@ -63,7 +70,7 @@ nav.innerHTML=
 <a href="Calculator" class="link">Calculators</a>
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
-<a href="lliu.fun/login" class="rightlink">Login</a>
+<a href="https://lliu.fun/login" class="rightlink">Login</a>
 `;
 document.head.appendChild(style);
 document.body.prepend(nav);
