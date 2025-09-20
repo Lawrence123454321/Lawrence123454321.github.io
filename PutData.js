@@ -1,4 +1,4 @@
-import { writeFile } from './fs';
+import * as fs from 'node:fs';
 function save(){
     let data = "Someone wrote here.\n";
 
