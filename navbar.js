@@ -63,7 +63,7 @@ nav.innerHTML=
 <a href="Calculator" class="link">Calculators</a>
 <a href="index.html" class="link">?</a>
 <a href="index.html" class="link">?</a>
-<a href="login.html" class="rightlink">Login</a>
+<a href="lliu.fun/login" class="rightlink">Login</a>
 `;
 document.head.appendChild(style);
 document.body.prepend(nav);
