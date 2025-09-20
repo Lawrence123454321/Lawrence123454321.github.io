@@ -65,10 +65,10 @@ nav.innerHTML=
 `
 <a href="index.html" class="link big">lliu.fun</a>
 <a href="Class.html" class="link">Class</a>
-<a href="Spare.html" class="link">Smol Projects</a>
+<a href="Spare.html" class="link">Spare Projects</a>
 <a href="Experiments.html" class="link">Experiments</a>
 <a href="Calculator" class="link">Calculators</a>
-<a href="index.html" class="link">?</a>
+<a href="/Games/" class="link">Games</a>
 <a href="index.html" class="link">?</a>
 <a href="https://lliu.fun/login" class="rightlink">Login</a>
 `;
