@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+const fs=require("./fs.js");
 function save(){
     let data = "Someone wrote here.\n";
 
