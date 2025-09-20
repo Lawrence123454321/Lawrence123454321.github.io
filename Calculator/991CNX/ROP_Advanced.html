@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ROP Beginner - lliu.fun</title>
+        <link rel="stylesheet" href="index.css" />
+    </head>
+    <body>
+        <div class="main">
+            <h1>Home</h1>
+            <h1 id="-advanced-fx-991cnx-calculator-exploiting-a-rop-vulnerability-to-execute-arbitrary-code">[Advanced] FX-991cnx Calculator: Exploiting a ROP Vulnerability to Execute Arbitrary Code</h1>
+            <h2 id="before-you-begin-you-need-to-know-">Before you begin, you need to know:</h2>
+            <ol>
+            <li>Please ensure you have read and understood the following:</li>
+            </ol>
+            <p><a href="https://lliu.fun/Calculator/991CNX/ROP_Beginner.html">ROP Beginner</a> 2. All operations below, unless otherwise specified, are performed in linear and complex mode.</p>
+            <ol>
+            <li>GitHub URL</li>
+            </ol>
+            <p><a href="https://github.com/qiufuyu123/fxesplus">https://github.com/qiufuyu123/fxesplus</a>## 0. Review
+            In the previous article, we gained a preliminary understanding of the implementation principles of ROP and performed some practical exercises.</p>
+            <p>In this article, we will delve deeper into ROP and address some remaining questions from the previous article.</p>
+            <p>Before that, let&#39;s review the previous content and complete a few simple tasks to test your understanding!</p>
+            <h3 id="a-single-line-text-display">a. Single-line Text Display</h3>
+            <p>Try to write ROP code to achieve the following effects:</p>
+            <ol>
+            <li><strong>Display the text &quot;you&quot; on the second line</strong></li>
+            </ol>
+            <p>(Please think for a moment and try to implement it yourself. The answer is below.)</p>
+            <hr>
+            <p>Answer:</p>
+            <p>First, find the corresponding function for &quot;you&quot; in the secondary character table: <strong>79 6F 75 —&gt; tan( sinh-1 ln</strong></p>
+            <p>Now, let&#39;s select a string display function. As mentioned above, function 2:205C can display only one line of characters without displaying anything else (such as PRESS AC), and it does not return, so we&#39;ll use this function here.</p>
+            <p>Next, we&#39;ll find a way to set the number of lines displayed: <strong>Second Line</strong></p>
+            <p>The second line, register r0, is set to <strong>0x1(x), where x represents any hexadecimal value. </strong>That is, the upper eight bits of the register are 1 (0-3 corresponds to lines 1-4).</p>
+            <p>Searching the character table, we find any The characters 0x1 (x) are special characters and cannot be typed at this time. We will use double-byte characters to create them (see the previous article).</p>
+            <p>As shown in the figure, we select the double-byte character FE 11 (i.e., pc&gt;km in unit conversion).</p>
+            <p>Then, select the function address that sets register r0:</p>
+            <p>Select function 1:21A8 (Note that the effect here is pop er0. When writing the program, please note that you will need to complete the remaining byte, as er0 includes both registers r0 and r1.)</p>
+            <p>Finally, let&#39;s put this together:</p>
+            <p>x (multiplication) e e pc&gt;km mti i 2 0</p>
+            <p>[A8 21 21 FE] (11 FD) [5C 20 32 30] (Note: 11 FD is the value written to er0, with 11 being written to r0.)</p>
+            <p>Then enter linear mode—&gt; 100+9an mode, enter tan(sinh-1 ln i i i i i i i i i i i i i i i, then enter any 17-byte character, followed by x (multiplication sign) e e pc&gt;km mti(shift+7+3+x) i 2 x (variable x, used to clear the screen for calc)</p>
+            <p>Press CALC Press =</p>
+            <h3 id="b-display-two-lines-of-characters-consecutively">b. Display two lines of characters consecutively</h3>
+            <p>Tip: Before all character display functions return, the address in er2 is automatically shifted backward.</p>
+            <hr>
+            <p>I won&#39;t explain the detailed process here; please figure it out yourself:</p>
+            <p><34 bytes> x (multiplication sign) e e pc&gt;km 0 C e 2 0 x e e 0 i mti i 2 x</p>
+            <p>[A8 21 21 FE] (11 30) [AE 21 32 30] [A8 21 21 30] (21 FD) [5C 20 32 30]</p>
+            <p>(Set r0 to 11, i.e. the second line, display the characters. Set r0 to 21, i.e. the third line, display the characters and never return)</p>
+            <p>##</p>
+            <h2 id="1-inputting-invisible-characters">1. Inputting Invisible Characters</h2>
+            <h3 id="a-usage-scenario">a. Usage Scenario</h3>
+            <p>As shown in the figure, it&#39;s inevitable that many addresses, such as <strong>0x83</strong>, corresponding to the character (&#39;Int(&#39;)), cannot be typed directly. However, a considerable portion of our ROP addresses contain special characters.</p>
+            <p>Including during character display, if you want to display characters, <strong>e (lowercase e)</strong> A table lookup reveals that its corresponding first-level character is 0x65 (Neg symbol).</p>
+            <p>Therefore, we must address special character input.</p>
+            <h3 id="b-principle-roughly-">b. Principle (roughly)</h3>
+            <p>Due to space limitations, I won&#39;t explain this in detail here. I&#39;ll briefly explain it here.</p>
+            <p>Inside the Casio calculator, in addition to the visible variables (A B C D E F x y M), there are several hidden variables, such as the character numbered 4D.</p>
+            <p>The value of this variable controls the calculator&#39;s history page buffer, which is the historical result that is retrieved each time you complete a calculation and press the <strong>Up</strong> key.</p>
+            <p>Theoretically, by assigning a value to this register, we can modify the history buffer. As long as the modified value is the special character we want to type, we can then use the history page to enter our desired character.</p>
+            <p>So, how do we type the 4D character and assign it a value?</p>
+            <h3 id="c-character-converter-very-important-">c. Character Converter (Very Important!!)</h3>
+            <p>As we all know, the character encoding within the calculator is divided into single-byte and double-byte. Double-byte characters</p>
+            <p>Among double-byte characters, FE 77 is a special character (corresponding to Unit Conversion -&gt; Page 2 -&gt; lbf/in² &gt; kPa).</p>
+            <p>When we use it to perform a unit conversion, for example,</p>
+            <p>1 lbf/in² &gt; kPa</p>
+            <p>31 (FE 77)</p>
+            <p>Then pressing up to enter the history buffer triggers a bug.</p>
+            <p>The current input buffer will now look like this:</p>
+            <p>1 | (| indicates the cursor position)</p>
+            <p>31 FE (As you can see, half of the double-byte character is consumed, leaving only the FE byte.)</p>
+            <p>Using this feature, we can construct some special symbols:</p>
+            <p>For example, if we press the number 1 key, the code in the buffer will be</p>
+            <p>31 FE 31</p>
+            <p>Because of the double-byte FE marker, FE 31 will be interpreted as starting with FE. Double-Byte Character Processing</p>
+            <p>By looking up the table, we see:</p>
+            <p>Thus, we can see characters appear on the screen.</p>
+            <blockquote>
+            <p>To make it easier for everyone to reproduce, I&#39;ve written the process below (I recommend you try implementing it yourself based on the previous content).
+            SHITF,8,Down,2,7,Left,1,=,Up,Left,1</p>
+            </blockquote>
+            <p>If we type a double-byte character, for example:</p>
+            <p>31 FE FD 18 (FD 18 is Rnd#, i.e., SHIFT+. (decimal point))</p>
+            <p>Then, the calculator will interpret it internally as follows:</p>
+            <p>31 (FE FD) 18</p>
+            <p>Note that 18 is recognized as a single-byte character. A table query shows it&#39;s an &#39;@&#39; symbol.</p>
+            <p>If we add a dot operation:</p>
+            <p>31 FE FD xx | 18 , inserting a single-byte character between FD and 18 (note the cursor position at this time).</p>
+            <p>We then press DEL to delete it.</p>
+            <p>31FE (FD xx) | 18 The calculator will interpret it as follows:</p>
+            <p>31 FE | 18 (after pressing DEL)</p>
+            <p>31 (FE 18) We have constructed a new double-byte character.</p>
+            <p>Of course, we can also immediately press a new single-byte character, such as the number 1. It should be easy to guess what will happen:</p>
+            <p>31 (FE 31) 18</p>
+            <blockquote>
+            <p><strong>Reproduction Steps:</strong>
+            <strong>SHIFT,8,Down,2,7,Left,1,=,Up,Left,SHIFT,Decimal point,Left,Left,Left,Left (pay attention here!!!),9,DEL</strong>
+            <strong>Press the number 1 again</strong>
+            <strong>(As for why we need to press Left,Left,Left to move the cursor, it&#39;s because we&#39;re inserting a double-byte character, but the calculator still displays the double-byte character as two single bytes. Therefore, the cursor won&#39;t move when we press Left for the first time</strong></p>
+            </blockquote>
+            <p>Try to refresh the hexadecimal symbols in the primary character table: A,B,C,E... corresponds to 3A 3B 3C 3D...:</p>
+            <p>31 (FE FD) 3A (FD 3A is the scientific constant re, SHIFT 7 3 7)</p>
+            <p>Move the cursor and swipe the B symbol again.</p>
+            <p>31 (FE FD) (FD 3B) | 3A</p>
+            <p>31 (FE FD) | (FD 3B) 3A</p>
+            <p>31 (FE FD) XX | (FD 3B) 3A</p>
+            <p>31 (FE FD) 3B | 3A</p>
+            <blockquote>
+            <p>To reproduce:
+            SHIFT 8 Down 2 7 Left 1 = Up Left SHIFT 7 3 7 Left Left/Right SHIFT 7 3 8 Left 9 DEL</p>
+            </blockquote>
+            <p>If done correctly, you can display all the following characters A-F:</p>
+            <blockquote>
+            <p>To reproduce:
+            SHIFT 8 Down 2 7 Left 1 = Up Left
+            SHIFT 7 3 C (key for variable c) Left Left/Right
+            SHIFT 7 3 B (key for variable b) Left 9 DEL Left/Right
+            SHIFT 7 3 A (key for variable a) Left 9 DEL Left and right
+            SHIFT 7 3 9 9 Left 9 DEL Left/Right
+            SHIFT 7 3 8 Left 9 DEL Left/Right
+            SHIFT 7 3 7 Left 9 DEL</p>
+            </blockquote>
+            <p>Here are some common character brushing methods:</p>
+            <p>SHIFT 7 3 7 —&gt; Hexadecimal letter: A</p>
+            <p>SHIFT 7 3 8 —&gt; … : B</p>
+            <p>….. 9 : C</p>
+            <p>….. Variable A ((-) key) : D</p>
+            <p>Variable B : E</p>
+            <p>Variable C : F</p>
+            <h3 id="e-character-glitching-practice">e. Character glitching practice</h3>
+            <ol>
+            <li>Glitch out C 4: (Note: Only use the character converter to brush out C, then delete the extra characters and type again) 4)</li>
+            </ol>
+            <blockquote>
+            <p>Reproduction Method:
+            sft 8 down 2 7 left 1 = up left sft 7 3 9 left left right DEL DEL right 4</p>
+            </blockquote>
+            <ol>
+            <li>Execute C 4 D 1 (Execute C D first, then add 4 1)</li>
+            </ol>
+            <hr>
+            <p>Now that we have a character converter, do we already have the necessary capabilities to type special characters?</p>
+            <p>Theoretically, yes.</p>
+            <p>However, it&#39;s noticeable that this method of typing special characters is actually quite contrived.</p>
+            <p>Since not all double-byte characters can be typed, this method still has limitations and is time-consuming.</p>
+            <p>Next, returning to the previous section, we&#39;ll use the special variable 4D to write to the history buffer and flush special characters.</p>
+            <h3 id="f-classic-flushing-characters">f. Classic ·@· Flushing Characters</h3>
+            <p>**Note! All operations below must be performed in linear mode.</p>
+            <p>Construct the following expression and use the calc button feature to assign values ​​to 4D variables (originally discovered on Tieba, see the article <a href="https://www.zhihu.com/people/fc9c9fc37de03d9fb9d2e5d7595f65db">https://www.zhihu.com/people/fc9c9fc37de03d9fb9d2e5d7595f65db</a>).</p>
+            <p>x: @= 10000xx xx xx xx xx 23 (replace xx with the character&#39;s code in the primary character table).</p>
+            <p>For example,</p>
+            <p>x: @ = 10000A023 will produce the (or) symbol. Note that you don&#39;t have to use all five character codes; as long as the number of characters to be produced is less than or equal to four and The last character cannot contain a letter! (Of course, no matter how many characters there are, it must be followed by a &#39;23&#39;.)</p>
+            <p>Specific implementation:</p>
+            <p>Use the character converter to generate all the required letters (remember to follow the order). For example, here we generate two (or), which requires two A&#39;s. We generate two A&#39;s first, then @.</p>
+            <blockquote>
+            <p>sft 8 down 2 7 left 1 = up left sft 7 3 7 left left right sft 7 3 7 left 9 DEL left right (generating two A&#39;s)
+            sft 7 4 8 left 9 DEL left right DEL DEL (generating 4 D&#39;s)</p>
+            </blockquote>
+            <p>Then:</p>
+            <blockquote>
+            <p>x (variable x) alpha integral sign (type the <code>:</code> separator) right alpha calc 1 0 0 0 0 right 0 right 0 2 3
+            calc, = , = , AC next</p>
+            </blockquote>
+            <h3 id="g-character-practice-">g. Character Practice:</h3>
+            <p>Display a Neg(symbol:</p>
+            <hr>
+            <blockquote>
+            <p>Operation:
+            sft 8 down 2 7 left 1 = up left sft 7 4 8 left left DEL DEL
+            Type
+            x:@=100006523
+            calc = = AC down</p>
+            </blockquote>
+            <h3 id="h-practice-display-love-you-">h. [Practice] Display &quot;love you&quot;</h3>
+            <p>From the table, we know that the encoding for &quot;love you&quot; is:</p>
+            <p>sinh-1 sinh (cubic root symbol) Neg( i tan sinh-1 ln(</p>
+            <p>Combining the previous method, we can achieve this! (Leave this for your own exploration)</p>
+            <h3 id="-warning-">【! ! WARNING!! ! 】</h3>
+            <p>In an mode, the last step, [AC] [Down], becomes: Press [Up] once.</p>
+            <h2 id="2-exploring-other-functions">2. Exploring Other Functions</h2>
+            <h3 id="a-striped-screen">a. Striped Screen</h3>
+            <p>The table is from my GitHub page; the repository address is at the end of the article.</p>
+            <p>First, as usual, enter 110an mode.</p>
+            <p>Then, using the method described above, flash the special character: 0xBE (should be an <code>@</code> symbol).</p>
+            <blockquote>
+            <p>Operation: sft 8 Down 2 7 Left 1 = Up Left
+            sft 7 3 [Buttons in variable B (°&#39; &quot;)] Left Left Left
+            sft 7 3 8 left 9 DEL
+            left right sft 7 4 8 left 9 DEL
+            left right DEL DEL Type x:@=10000BE23 calc = = up</p>
+            </blockquote>
+            <p><strong>Note! The last step is to press <code>up</code> once! The last step in an mode is slightly different</strong></p>
+            <p>Then, press [=]</p>
+            <p>Symptom:</p>
+            <p>Cursor flickers</p>
+            <p>After pressing [SHIFT]</p>
+            <p>Cursor stops flickering, and the system freezes.</p>
+            <h3 id="b-changing-the-stripe-style-">b. Changing the stripe style:</h3>
+            <p>It&#39;s very simple.</p>
+            <p>Before displaying the stripes, use the *e e function to set the value of register r1.</p>
+            <p>(As for which values ​​correspond to which patterns, I haven&#39;t specifically researched them. It seems to be related to the binary matrix. Interested readers can research it on their own.)</p>
+            <h3 id="c-press-the-button-once-to-change-the-pattern-">c. Press the button once to change the pattern.</h3>
+            <p>It&#39;s very simple, except we need to create two BE</p>
+            <p>This ROP is very simple and won&#39;t be explained here.</p>
+            <p><a href="https://www.zhihu.com/video/1636087432205553665">https://www.zhihu.com/video/1636087432205553665</a> Video Effect:</p>
+            <p>First, stripes are displayed. Pressing SHIFT displays a different stripe pattern.</p>
+            <h3 id="d-display-stripes-then-display-text-">d. Display stripes, then display text.</h3>
+            <p>A bit more challenging.</p>
+            <p>Note:</p>
+            <p><strong>After executing the display stripe function, register er2 will be modified. Therefore, in order to display text, we need to manually assign a value to register er2 after executing the display stripe function!</strong></p>
+            <p>Here, select this function to modify the value of er2.</p>
+            <p>Question:</p>
+            <p>What should the value of er2 be modified to?</p>
+            <p>Obviously, it should be modified to the address at the beginning of the input buffer, because the characters we want to display are in the first 17 bytes.</p>
+            <p>I&#39;ve compiled the address: <strong>0xD180</strong></p>
+            <p><strong>(Note the little-endian byte order conversion. In the GitHub repository, I&#39;ve written everything in little-endian byte order, so you can use it directly without conversion.)</strong></p>
+            <p>Therefore, a ROP should look like this:</p>
+            <p>k 0 e 0 0 0 <80> <D1> 0 0 0 0</p>
+            <p>Set er0 to 0x3030, er2 to 0xD180, and er4 to 0x3030, er6 is 0x3030</p>
+            <p>Since we only care about the value of er2, the other values ​​can be set arbitrarily. Here, &#39;0&#39; (0x30) is used.</p>
+            <p>This ROP code sets the value of the ER2 register.</p>
+            <p>To summarize, we need a total of three special characters:</p>
+            <p><BE> <80> <D1></p>
+            <h3 id="e-display-stripes-press-the-button-to-display-love-you-">e. Display stripes. Press the button to display &quot;love you.&quot;</h3>
+            <p>Similar to &#39;d&#39;, except the displayed character is replaced with &quot;love you.&quot;</p>
+            <p>The first-level characters corresponding to &quot;love you&quot; are:</p>
+            <p>sinh-1 sinh cube root Neg(i tan sinh-1 ln i i i i i i i i</p>
+            <p>Special characters used:</p>
+            <p><65> <BE> <80> <D1></p>
+            <p>Sorry, <strong>these characters can&#39;t be flashed</strong></p>
+            <p><strong>Why?</strong></p>
+            <p>Simple, let&#39;s go back to the conditions for flashing characters:</p>
+            <p>Obviously, our last character contains the letter (D1)!</p>
+            <p>However, you can try it. If you flash characters using this code, you&#39;ll find that when you press the ·Up· key, the special character doesn&#39;t appear.</p>
+            <p>Due to space limitations, this article won&#39;t discuss the underlying principles for now.</p>
+            <h3 id="f-how-to-solve-this-problem-">f.How to solve this problem?</h3>
+            <p>So, how do we achieve the complex operation shown in the video? (Obviously, the video uses a lot of special characters.)</p>
+            <p>We need some more advanced character-scraping methods.</p>
+            <p>Before discussing this, let&#39;s first take a deeper look at the an character.</p>
+            <h2 id="4-deep-understanding-stack-overflow">4. Deep Understanding Stack Overflow</h2>
+            <h3 id="a-calculating-the-stack-offset-for-the-an-character">a. Calculating the Stack Offset for the an Character</h3>
+            <p>Have you ever wondered:</p>
+            <p>Why is it <strong>110 characters + an**</strong>?</p>
+            <p>and not some other length of characters?</p>
+            <p>To answer this question, we need to start with the most basic stack overflow.</p>
+            <hr>
+            <p>First of all, 110 bytes + an isn&#39;t actually the most basic stack overflow.</p>
+            <p>In the previous article, we mentioned:</p>
+            <p>After triggering 110 bytes + an, we must pad with 34 bytes of data before the remaining data is overwritten on the stack.</p>
+            <p>In fact, the most basic stack overflow is triggered by 76 bytes + an.</p>
+            <p>That is, if you enter 1 2 3 4 ... (76 digits) an, the stack overflow has already been triggered.</p>
+            <p>In this mode, the stack is overwritten starting from the first byte of the input area.</p>
+            <p>In other words, in this mode, we don&#39;t need to pad with 34 bytes of data; we can directly write to the ROP address:</p>
+            <h3 id="-demo-1-76-bytes-an-">[Demo 1: 76 bytes an]</h3>
+            <p>First, using the old method, after flashing the an character, enter 76 bytes before it (you can use 1 2 3 4 ...to count)</p>
+            <p>Then, press [=] and use the address 2:20FE (i.e., Pa &gt; kgf/cm² 2 0 ).</p>
+            <p>Note! The address 2:205C cannot be used here.</p>
+            <p>Remember why?</p>
+            <p>Because the 5C in this address is made up of the double-byte character mti!</p>
+            <p>When we type: mti i 2 0, the hexadecimal value is as follows:</p>
+            <p>(FD) [5C 20 32 30] &lt;-- The real address is 5C 20 32 30</p>
+            <p>Since this mode starts from the first byte of the input area, the bottom of the stack will be overwritten, so when returning, the CPU will execute:</p>
+            <p>[FD 5C 20 32] (30)</p>
+            <p>So the address is wrong.</p>
+            <p>You can see the effect.</p>
+            <p>Since the string address is still retrieved from register er2, and the value of register er2 is automatically set to the beginning of the input buffer after executing the smart_strcpy function, the actual string displayed is:</p>
+            <p>FE 5C 32 30</p>
+            <p>Corresponding secondary characters:</p>
+            <p>&#39;(something)&#39; &#39;2&#39; &#39;0&#39;</p>
+            <h3 id="-limitations-of-76-bytes-mode-">[Limitations of 76-bytes mode?]</h3>
+            <p>Unfortunately, this mode doesn&#39;t offer much.</p>
+            <p>Since the stack is overwritten starting with the first byte of the input area, this means that once even a single character is entered, the ROP begins when the [=] sign is pressed.</p>
+            <p>If we want to flash some invisible characters first, this mode won&#39;t work.</p>
+            <p>Because flashing invisible characters requires a character converter (SHIFT 8 down 2 7)</p>
+            <p>You&#39;ll also have to press the [=] sign (character converter) at least once.</p>
+            <p>However, in this mode, once you press the equals key, the ROP begins executing.</p>
+            <p>Unlike the 110-byte an, where we have 34 bytes to pad, as long as the input area doesn&#39;t exceed 34 bytes, we can press the [=] sign at will, as the ROP will be triggered after 34 bytes.</p>
+            <h3 id="b-construct-the-desired-stack-offset-">b. Construct the desired stack offset:</h3>
+            <p>You should have noticed some patterns:</p>
+            <p>76 bytes differ from 110 bytes by a few bytes:</p>
+            <p>That&#39;s right, <strong>34 (110-76)</strong>!</p>
+            <p>Did you notice? This corresponds exactly to the 34 bytes to be padded in the input buffer, and the ROP starts at <strong>the 35th</strong> byte!</p>
+            <p>This means that if you want the ROP to trigger at byte n in the input buffer,</p>
+            <p>then, you need to construct a (76 + n)-byte an.</p>
+            <h3 id="-demo-1-simplifying-single-line-spelling-">[Demo 1: Simplifying Single-Line Spelling]</h3>
+            <p>We can simplify single-line character output like this:</p>
+            <p>We trigger 93 bytes an (93 = 76 + 17).</p>
+            <p>This means the ROP will begin immediately after we enter 17 characters (a line).</p>
+            <p>First, as usual, enter 93 characters, then the an character, and press the [=] sign (I won&#39;t demonstrate this step).</p>
+            <p>Then simply start entering the character you want to display (looking up the secondary character table), and as usual, Pa &gt; f... 2 0</p>
+            <p>That&#39;s it... right?</p>
+            <hr>
+            <p><strong>Wait! </strong></p>
+            <p><strong>Why doesn&#39;t it work? Why did it fail? </strong></p>
+            <h3 id="c-why-is-the-offset-wrong-">c. Why is the offset wrong?</h3>
+            <p>If you input as described above, you will find that when you press the [=] sign, the ROP should theoretically execute and a line of characters should be displayed. But why does the calculator freeze?</p>
+            <p>Did we miscalculate the offset?</p>
+            <p>Of course not!</p>
+            <p>Think carefully, what went wrong?</p>
+            <hr>
+            <p>The error lies in the address input!</p>
+            <p>Remember that in this calculator&#39;s CPU, the stack (address) is 2-byte aligned?</p>
+            <p>Recall what we input:</p>
+            <p>[xx xx] [xx xx] [xx xx] [xx xx] [xx xx] [xx xx] [xx xx] [xx xx] [xx FE] [20 32]</p>
+            <p>(&lt;-- the first 17 characters --&gt;)</p>
+            <p>That is, the value popped from the stack at this time is: [xx FE] [20 32]</p>
+            <p>Naturally, the address is wrong, and the calculator freezes.</p>
+            <p>The solution is also very simple:</p>
+            <p>Two methods:</p>
+            <ol>
+            <li><p>Delete the last character (enter 16 characters before becoming the address)</p>
+            </li>
+            <li><p>Increment the offset by 1, 94 bytes, and then enter one more character.</p>
+            </li>
+            </ol>
+            <p>I chose the latter option.</p>
+            <p>Therefore, we must note:</p>
+            <p>We must ensure that the offset before the ROP byte is an even number of bytes. Only then will the ROP be executed.</p>
+            <h3 id="-demo-application-three-line-spelling-">[Demo (Application): Three-Line Spelling]</h3>
+            <p>Strategy:</p>
+            <p>Exploiting 2:21AE(C e 2 0) displays the character and returns the address. Then, the 1:21A8 (* e e) function sets the value of er0 and selects the number of rows.</p>
+            <p>The entire process should be as follows:</p>
+            <p>x (multiplication sign) e e in&gt;cm (unit conversion, resulting in a character with the high-order bit set to 0) 0 (padding: er1 register) C e 2 0 x (multiplication sign) e e pc&gt;cm (producing a character with the high-order bit set to 1) 0 C e 2 0 Pa&gt;kgf/cm2 2 0 (This function outputs the character on the third row by default)</p>
+            <p>Implementation:</p>
+            <p>First, calculate the stack offset.</p>
+            <p>17 (number of characters in a row) * 3 + 76 = 127</p>
+            <p>Obviously, <strong>127 is an odd number and does not align to 2 bytes</strong></p>
+            <p>Therefore, we must enter 128 bytes for alignment (note that after entering three rows of characters, we need to enter an additional character).</p>
+            <p>Enter 128-byte an Pattern (100 characters, &#39;+&#39; sign, 27 characters, an)</p>
+            <p>Enter 3 lines of characters + ROP address</p>
+            <p>Note that there&#39;s an extra &quot;x&quot; character in the fourth line.</p>
+            <p>Then [CALC][=]</p>
+            <h2 id="4-more-special-symbols-note-please-perform-the-following-operations-in-linear-mode-">4. More Special Symbols <strong>[Note:] Please perform the following operations in linear mode</strong></h2>
+            <p>In the [Invisible Character Input] section, we discussed the most basic method for swiping special characters.</p>
+            <p>However, this method has a major problem: it can only swipe 4 special characters and is limited (the last character cannot contain a letter code).**</p>
+            <p>Similarly, the principle behind swiping special characters is quite complex, and due to space limitations, I will not discuss this in this article. This article focuses on ROP programming. If you are interested, I will write another article on the principles of characters when I have time.</p>
+            <p>For now, you only need to master the method:</p>
+            <h3 id="a-formula">a. Formula</h3>
+            <p>F. xx xx xx xx xx yy xx x10 xx (last 8 characters)</p>
+            <p><code>@</code> = 1.0000 xx xx xx yy xx x10 xx (first 6 characters)</p>
+            <p>*Note: The yy mark cannot contain hexadecimal letters, and all 14 characters must be entered!</p>
+            <p>Using these two formulas, you can swipe 6 + 8 = 14 special characters</p>
+            <h3 id="b-usage">b. Usage</h3>
+            <p>First, determine the last 8 characters to flash.</p>
+            <p>For example, here we flash 8 Neg (0x65)</p>
+            <p>So, first use the character converter to flash &#39;F&#39; (hexadecimal symbol F, not the variable F), and then construct:</p>
+            <p>F.65 65 65 65 65 65 65 x10 65</p>
+            <p>Then press <code>STO</code> <code>X</code> (variable x)</p>
+            <p>Then [AC]</p>
+            <p>Next, determine the first 6 characters to flash. We flash a few 2 (0x32)</p>
+            <p>Then, the process is similar to the traditional <code>@</code> flashing. Construct:</p>
+            <p>@ = 1.00003232323232x1032</p>
+            <p>Then, construct:</p>
+            <blockquote>
+            <p>x in&gt;cm:
+            x:
+            x in&gt;cm:
+            @ = ......</p>
+            </blockquote>
+            <p>Then, [CALC][=][=][=][=][AC][Next]</p>
+            <p>Then: (Important!!!)</p>
+            <p>Move the cursor to the end and delete a space character and an x ​​character.</p>
+            <p>Then, move the cursor to the middle, delete a space character, and then delete an @ character.</p>
+            <p>(Note! Get the order right, otherwise the characters will be misplaced and difficult to use!)</p>
+            <p>So, you have 14 special characters!</p>
+            <h3 id="c-practice">c. Practice</h3>
+            <p>Please create these special characters:</p>
+            <p><80> <D1> <C4> <90> <D1> <BE></p>
+            <hr>
+            <p>First, construct the last 8 characters:</p>
+            <p>F. 80D1C490D13232x10 32</p>
+            <p>Then, construct the first 6:</p>
+            <p>@ = 1.000032323232BE x10 32</p>
+            <p>Same old: CALC, 4 times =, AC, next</p>
+            <p>After a series of deletions:</p>
+            <h3 id="d-note-this-method-only-works-in-certain-modes-">d. Note: This method only works in certain modes.</h3>
+            <p>This method of swiping characters does not work in 110an mode!</p>
+            <p>Symptom: Assigning a value to x will cause a crash.</p>
+            <p>However, it can be used in situations where the stack offset is relatively large.</p>
+            <p>For example, the most classic scenario:</p>
+            <p>100 digits, + sign, 9 digits, + sign, 13 digits, an symbol (124an mode)</p>
+            <p>First, enter this mode. It&#39;s not difficult; it just takes a few more steps than the traditional 110an mode. Simply follow the instructions above.</p>
+            <p>Then use this method to swipe characters.</p>
+            <p>**Note! In the last step, the [AC] [Down] key must be changed to: Press [Up] once.</p>
+            <p>We can now flash.</p>
+            <h2 id="5-advanced-rop-multiple-special-character-functions-">5. Advanced ROP (Multiple Special Character Functions)</h2>
+            <p>Now, let&#39;s complete the remaining tasks:</p>
+            <p>First, list the characters to flash:</p>
+            <p><65> <BE> <80> <D1></p>
+            <p>We&#39;ll flash them all in the last eight characters.</p>
+            <ol>
+            <li><p>Enter 124an mode (100 digits, + sign, 9 digits, + sign, 13 digits, an symbol, [=])</p>
+            </li>
+            <li><p>Construct:</p>
+            </li>
+            </ol>
+            <p>F. 65 BE 80 D1 32 32 32 x10 32</p>
+            <p>STO x</p>
+            <ol>
+            <li>Construction:</li>
+            </ol>
+            <p>@ = 1.00003232323232 x10 32</p>
+            <p>calc , [=]*4 , up</p>
+            <p>Delete extra characters</p>
+            <p>Delete the padding &#39;2&#39;.</p>
+            <p>Construct the &quot;love you&quot; character.</p>
+            <p>Padding 17 characters.</p>
+            <p>Since this pattern shifts the ROP position 14 bytes back compared to 110an, we need to add 14 characters.</p>
+            <p>Constructing the ROP:</p>
+            <p>Display the stripes and wait for SHIFT input, set the value of ER2, and display the characters.</p>
+            <p>(Note: the &#39;k&#39; symbol is the K in engineering notation; type: OPTN 3 6)</p>
+            <p>Done!</p>
+            <p><a href="https://www.zhihu.com/video/1636106728273166337">https://www.zhihu.com/video/1636106728273166337</a>## 6. Achieve the effect of the opening video (with video tutorial) It&#39;s easy to see that there&#39;s only one step left until we reach the beginning of the video:</p>
+            <p>Detect the key press again and display another line of text.</p>
+            <p>First, whenever key detection is involved, the ER2 register must be manually re-assigned.</p>
+            <p>Let&#39;s do some calculations:</p>
+            <p>The first time ER2 is assigned, it&#39;s manually set to 0xD180.</p>
+            <p>So, suppose we type the 17 characters of the second line of text immediately following the first in the input area.</p>
+            <p>Note that the blue box indicates where the second line of text is stored.</p>
+            <p>Obviously, what is the address at the beginning of this data segment?</p>
+            <p>0xD180 + 17 ==&gt; 0xD191</p>
+            <p>Okay, we got the address</p>
+            <p>Let&#39;s sort out the ideas:</p>
+            <p>First, display the stripes and wait for input, then set the value of the ER2 register to 0xD180 (and set the R0 register to select the number of rows), then use Ce20 to display the characters, then wait for SHIFT to be pressed, then set the value of the ER2 register to 0xD191 (and set the R0 register to select the next row), then use mti i 2 0 to display the characters</p>
+            <p>From this, write the ROP:</p>
+            <p>@(<BE>) e 2 0 k 0 e pc&gt;km(second line) @(80) &gt;t(D1) 0 0 0 0 C e 2 0 @(<C4>) e 2 0 k 0 e 0 i i Identity((91) &gt;t(D1) 0 0 0 mti i 2 0</p>
+            <p>Also character encoding:</p>
+            <p>sinh-1 sinh 3rd root Neg( (<65>) i tan sinh-1 ln i i i i i i i i --&gt; love you</p>
+            <p>E (variable E) sinh-1 e^( Neg( 3 this root Neg( e^( i i i i i i i i i i --&gt; Forever</p>
+            <p>Extract special characters used</p>
+            <p><65> <65> <65> <BE> <80> <D1> <C4> <91> <D1> There are 9 in total.</p>
+            <p>As usual, let&#39;s use the 124an mode.</p>
+            <p>Arrange them:</p>
+            <p>The last 8 characters of the construction are:</p>
+            <p>F.80D1C491D13232x1032</p>
+            <p>First 6 characters</p>
+            <p>@ = 1. 00006565656565BE x10 32 (Note that the BE position cannot be in the preceding position 65. See the position restriction mentioned earlier for details.)</p>
+            <p>Same as always, CALC, 4 down [=], [up]</p>
+            <p>Delete the characters in the red box.</p>
+            <p>Delete the extra &quot;Neg&quot; (</p>
+            <p>Spell out the first paragraph: &quot;love you&quot;</p>
+            <p>Spell out the second paragraph: <code>Forever</code></p>
+            <p>Fill in 14 characters</p>
+            <p>CALC,【=】</p>
+            <p><a href="https://www.zhihu.com/video/1636112695039721472">https://www.zhihu.com/video/1636112695039721472</a></p>
+            <hr>
+            <h2 id="full-video-tutorial-if-you-don-t-understand-the-above-process-you-can-watch-this-">Full video tutorial (if you don&#39;t understand the above process, you can watch this)</h2>
+            <p>Due to the difficulty in filming, some mistakes occurred.</p>
+            <p><a href="https://www.zhihu.com/video/1636115253342724097">https://www.zhihu.com/video/1636115253342724097</a></p>
+            <hr>
+            <p>GitHub Repository</p>
+            <p><a href="https://github.com/qiufuyu123/fxesplus">GitHub - qiufuyu123/fxesplus: FX-991cnx Reverse Engineering Tool/Collation</a></p>
+
+        </div>
+    </body>
+</html>
