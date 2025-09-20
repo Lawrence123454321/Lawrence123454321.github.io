@@ -7,19 +7,9 @@
 
 <body>
     <div class="main">
-        <button onclick="save">Write something</button>
+        <button id="save">Write something</button>
     </div>
-    <script>
-        const fs = require('fs');
-        function save(){
-            let data = "Someone wrote here.\n";
-
-            fs.writeFile('data.txt', data, (err) => {
-            if (err) throw err;
-            console.log('Data written to file');
-            });
-        }
-    </script>
+    <script src="PutData.js"></script>
     <script src="../navbar.js"></script>
 </body>
 
