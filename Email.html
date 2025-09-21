@@ -1,31 +1,42 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Email - lliu.fun</title>
-        <link rel="stylesheet" href="inputs.css"/>
-        <style>
-            a {
-                color:darkslategray;
+<head>
+    <title>Send Email</title>
+</head>
+<body>
+    <button onclick="SendMail()">Send Mail</button>
+    <script>
+        const nodemailer = require('nodemailer');
+        
+        // Create a transporter object using SendLayer's SMTP server
+        const transporter = nodemailer.createTransport({
+        host: 'smtp.office365.com',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: 'Lawrence Liu',
+            pass: 'Lawrence Liu' }
+        });
+        
+        // Configure email options
+        const mailOptions = {
+            from: 'Lawrence-Liu12345@outlook.com', // Sender address
+            to: 'Lawrence-Liu123456@outlook.com', // Recipient address
+            subject: 'Test Email from JavaScript', // Subject line
+            text: 'This is a plain text email sent from JavaScript using Nodemailer.' // Plain text body
+        };
+        function SendMail() {
+        // Send email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error);
+            } else {
+                console.log('Email sent:', info.response);
             }
-        </style>
-    </head>
-    <body style="background-color: #ccc">
-        <div class="main">
-            <button onclick="sendEmail()">Click to send</button>
-        </div>
-        <script>
-            function sendEmail() {
-                Email.send({
-                    Host: "smtp.office365.com",
-                    Username: "Lawrence-Liu12345@outlook.com",
-                    Password: "Lawrence Liu",
-                    To: "Lawrence-Liu123456@outlook.com",
-                    From: "Lawrence-Liu12345@outlook.com",
-                    Subject: "This is a test email",
-                    Body: `Hello`,
-                }).then((message) => alert("Email sent successfully!"));
-            }
-        </script>
-        <script src="navbar.js"></script>
-    </body>
+        }
+        );
+        }
+    </script>
+    <script src="navbar.js"></script>
+</body>
 </html>
