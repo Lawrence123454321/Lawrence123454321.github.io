@@ -6,7 +6,7 @@
 <body>
     <button onclick="SendMail()">Send Mail</button>
     <script>
-        const nodemailer = require('nodemailer');
+        import * as nodemailer from "/node_modules/nodemailer/lib/nodemailer.js";
         
         // Create a transporter object using SendLayer's SMTP server
         const transporter = nodemailer.createTransport({
