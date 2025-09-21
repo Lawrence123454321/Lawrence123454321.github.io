@@ -1,0 +1,30 @@
+
+nodemailer = require("nodemailer");
+// Create a transporter object using SendLayer's SMTP server
+const transporter = nodemailer.createTransport({
+host: 'smtp.office365.com',
+port: 587,
+secure: false, // true for 465, false for other ports
+auth: {
+    user: 'Lawrence Liu',
+    pass: 'Lawrence Liu' }
+});
+
+// Configure email options
+const mailOptions = {
+    from: 'Lawrence-Liu12345@outlook.com', // Sender address
+    to: 'Lawrence-Liu123456@outlook.com', // Recipient address
+    subject: 'Test Email from JavaScript', // Subject line
+    text: 'This is a plain text email sent from JavaScript using Nodemailer.' // Plain text body
+};
+function SendMail() {
+// Send email
+transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+        console.error('Error sending email:', error);
+    } else {
+        console.log('Email sent:', info.response);
+    }
+}
+);
+}

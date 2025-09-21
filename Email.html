@@ -5,9 +5,8 @@
 </head>
 <body>
     <button onclick="SendMail()">Send Mail</button>
+    <script type="module" src="node_modules/nodemailer/lib/nodemailer.js"></script>
     <script>
-        import * as nodemailer from "/node_modules/nodemailer/lib/nodemailer.js";
-        
         // Create a transporter object using SendLayer's SMTP server
         const transporter = nodemailer.createTransport({
         host: 'smtp.office365.com',
