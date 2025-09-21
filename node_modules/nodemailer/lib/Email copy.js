@@ -1,5 +1,5 @@
 
-nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 // Create a transporter object using SendLayer's SMTP server
 const transporter = nodemailer.createTransport({
 host: 'smtp.office365.com',
