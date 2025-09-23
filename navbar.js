@@ -74,3 +74,4 @@ nav.innerHTML=
 `;
 document.head.appendChild(style);
 document.body.prepend(nav);
+document.body.append(`<meta http-equiv="X-Frame-Options" content="DENY">`);
