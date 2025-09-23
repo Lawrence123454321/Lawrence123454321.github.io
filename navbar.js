@@ -63,13 +63,13 @@ a {
 nav.className="nav";
 nav.innerHTML=
 `
-<a href="index.html" class="link big">lliu.fun</a>
-<a href="Class.html" class="link">Class</a>
-<a href="Spare.html" class="link">Spare Projects</a>
-<a href="Experiments.html" class="link">Experiments</a>
-<a href="Calculator" class="link">Calculators</a>
-<a href="/Games/" class="link">Games</a>
-<a href="index.html" class="link">?</a>
+<a href="https://lliu.fun" class="link big">lliu.fun</a>
+<a href="https://lliu.fun/Class.html" class="link">Class</a>
+<a href="https://lliu.fun/Spare.html" class="link">Spare Projects</a>
+<a href="https://lliu.fun/Experiments.html" class="link">Experiments</a>
+<a href="https://lliu.fun/Calculator" class="link">Calculators</a>
+<a href="https://lliu.fun/Games/" class="link">Games</a>
+<a href="" class="link">?</a>
 <a href="https://lliu.fun/login" class="rightlink">Login</a>
 `;
 document.head.appendChild(style);
