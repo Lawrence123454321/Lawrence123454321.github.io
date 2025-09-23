@@ -1,3 +1,7 @@
+/* Copyright (C) lliu.fun - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Written by Lawrence Liu lawrence-liu12345@outlook.com, September 2025
+ */
 
 let b1=document.getElementById("box1");
 let b2=document.getElementById("box2");

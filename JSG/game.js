@@ -1,3 +1,7 @@
+/* Copyright (C) lliu.fun - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Written by Lawrence Liu lawrence-liu12345@outlook.com, September 2025
+ */
 // game.js
 document.addEventListener('DOMContentLoaded', () => {
   const gameBoard = document.getElementById('game-board');

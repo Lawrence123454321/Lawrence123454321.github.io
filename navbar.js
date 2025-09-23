@@ -1,3 +1,7 @@
+/* Copyright (C) lliu.fun - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Written by Lawrence Liu lawrence-liu12345@outlook.com, September 2025
+ */
 let nav = document.createElement('div');
 let style = document.createElement('style');
 style.innerHTML=
@@ -68,7 +72,7 @@ nav.innerHTML=
 <a href="https://lliu.fun/Spare.html" class="link">Spare Projects</a>
 <a href="https://lliu.fun/Experiments.html" class="link">Experiments</a>
 <a href="https://lliu.fun/Calculator" class="link">Calculators</a>
-<a href="https://lliu.fun/Games/" class="link">Games</a>
+<a href="https://lliu.fun/JSG/" class="link">Games</a>
 <a href="" class="link">?</a>
 <a href="https://lliu.fun/login" class="rightlink">Login</a>
 `;
